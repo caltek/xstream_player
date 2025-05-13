@@ -204,30 +204,31 @@ class DataSource {
   /// The [package] argument must be non-null when the asset comes from a
   /// package and null otherwise.
   ///
-  DataSource({
-    required this.sourceType,
-    this.uri,
-    this.formatHint,
-    this.asset,
-    this.package,
-    this.headers,
-    this.useCache = false,
-    this.maxCacheSize = _maxCacheSize,
-    this.maxCacheFileSize = _maxCacheFileSize,
-    this.cacheKey,
-    this.showNotification = false,
-    this.title,
-    this.author,
-    this.imageUrl,
-    this.notificationChannelName,
-    this.overriddenDuration,
-    this.licenseUrl,
-    this.certificateUrl,
-    this.drmHeaders,
-    this.activityName,
-    this.clearKey,
-    this.videoExtension,
-  }) : assert(uri == null || asset == null);
+  DataSource(
+      {required this.sourceType,
+      this.uri,
+      this.formatHint,
+      this.asset,
+      this.package,
+      this.headers,
+      this.useCache = false,
+      this.maxCacheSize = _maxCacheSize,
+      this.maxCacheFileSize = _maxCacheFileSize,
+      this.cacheKey,
+      this.showNotification = false,
+      this.title,
+      this.author,
+      this.imageUrl,
+      this.notificationChannelName,
+      this.overriddenDuration,
+      this.licenseUrl,
+      this.certificateUrl,
+      this.drmHeaders,
+      this.activityName,
+      this.clearKey,
+      this.videoExtension,
+      this.sig})
+      : assert(uri == null || asset == null);
 
   /// Describes the type of data source this [VideoPlayerController]
   /// is constructed with.
@@ -304,6 +305,7 @@ class DataSource {
   final String? clearKey;
 
   final String? videoExtension;
+  final String? sig;
 
   /// Key to compare DataSource
   String get key {
@@ -372,14 +374,15 @@ class VideoEvent {
   ///
   /// Depending on the [eventType], the [duration], [size] and [buffered]
   /// arguments can be null.
-  VideoEvent({
-    required this.eventType,
-    required this.key,
-    this.duration,
-    this.size,
-    this.buffered,
-    this.position,
-  });
+  VideoEvent(
+      {required this.eventType,
+      required this.key,
+      this.duration,
+      this.size,
+      this.buffered,
+      this.position,
+      this.metadata,
+      this.isPlaying});
 
   /// The type of the event.
   final VideoEventType eventType;
@@ -407,6 +410,11 @@ class VideoEvent {
   ///Seek position
   final Duration? position;
 
+  ///isPlaying
+  final bool? isPlaying;
+
+  final Map<dynamic, dynamic>? metadata; // <String, dynamic>
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
@@ -416,6 +424,8 @@ class VideoEvent {
             eventType == other.eventType &&
             duration == other.duration &&
             size == other.size &&
+            isPlaying == other.isPlaying &&
+            mapEquals(metadata, other.metadata) &&
             listEquals(buffered, other.buffered);
   }
 
@@ -424,7 +434,9 @@ class VideoEvent {
       eventType.hashCode ^
       duration.hashCode ^
       size.hashCode ^
-      buffered.hashCode;
+      buffered.hashCode ^
+      metadata.hashCode ^
+      isPlaying.hashCode;
 }
 
 /// Type of the event.
@@ -447,6 +459,12 @@ enum VideoEventType {
   /// The video stopped to buffer.
   bufferingEnd,
 
+  /// Playing state changed
+  isPlayingChanged,
+
+  /// Video size changed
+  videoSizeChanged,
+
   /// The video is set to play
   play,
 
@@ -461,6 +479,9 @@ enum VideoEventType {
 
   /// Picture in picture mode has been dismissed
   pipStop,
+
+  /// Video Analytics event
+  videoAnalytics,
 
   /// An unknown event has been received.
   unknown,

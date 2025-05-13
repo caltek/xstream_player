@@ -95,6 +95,7 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
           'activityName': dataSource.activityName,
           'clearKey': dataSource.clearKey,
           'videoExtension': dataSource.videoExtension,
+          'sig': dataSource.sig
         };
         break;
       case DataSourceType.file:
@@ -354,6 +355,37 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
             duration: Duration(milliseconds: map['duration'] as int),
             size: size,
           );
+        case 'videoSizeChanged':
+          double width = 0;
+          double height = 0;
+
+          try {
+            if (map.containsKey("width")) {
+              final num widthNum = map["width"] as num;
+              width = widthNum.toDouble();
+            }
+            if (map.containsKey("height")) {
+              final num heightNum = map["height"] as num;
+              height = heightNum.toDouble();
+            }
+          } on Exception catch (exception) {
+            BetterPlayerUtils.log(exception.toString());
+          }
+
+          final Size size = Size(width, height);
+
+          return VideoEvent(
+            eventType: VideoEventType.videoSizeChanged,
+            key: key,
+            size: size,
+          );
+        case 'isPlayingChanged':
+          final bool isPlaying = map["isPlaying"] as bool;
+          return VideoEvent(
+            eventType: VideoEventType.isPlayingChanged,
+            key: key,
+            isPlaying: isPlaying,
+          );
         case 'completed':
           return VideoEvent(
             eventType: VideoEventType.completed,
@@ -408,7 +440,12 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
             eventType: VideoEventType.pipStop,
             key: key,
           );
-
+        case 'analytics':
+          return VideoEvent(
+            eventType: VideoEventType.videoAnalytics,
+            key: key,
+            metadata: map,
+          );
         default:
           return VideoEvent(
             eventType: VideoEventType.unknown,

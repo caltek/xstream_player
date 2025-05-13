@@ -34,6 +34,10 @@ class BetterPlayerController {
   ///List of files to delete once player disposes.
   final List<File> _tempFiles = [];
 
+  ///Stream controller which emits stream when player events happen.
+  final StreamController<Map<dynamic, dynamic>> _controllerAnalytics =
+      StreamController.broadcast();
+
   ///Stream controller which emits stream when control visibility changes.
   final StreamController<bool> _controlsVisibilityStreamController =
       StreamController.broadcast();
@@ -200,6 +204,10 @@ class BetterPlayerController {
   ///normal events, use eventListener.
   Stream<BetterPlayerControllerEvent> get controllerEventStream =>
       _controllerEventStreamController.stream;
+
+  /// Stream of analytics events
+  Stream<Map<dynamic, dynamic>> get analyticsEventStream =>
+      _controllerAnalytics.stream;
 
   ///Flag which determines whether are ASMS segments loading
   bool _asmsSegmentsLoading = false;
@@ -1164,6 +1172,9 @@ class BetterPlayerController {
       case VideoEventType.bufferingEnd:
         _postEvent(BetterPlayerEvent(BetterPlayerEventType.bufferingEnd));
         break;
+      case VideoEventType.videoAnalytics:
+        if (event.metadata != null) _controllerAnalytics.add(event.metadata!);
+        break;
       default:
 
         ///TODO: Handle when needed
@@ -1299,6 +1310,7 @@ class BetterPlayerController {
       _videoEventStreamSubscription?.cancel();
       _disposed = true;
       _controllerEventStreamController.close();
+      _controllerAnalytics.close();
 
       ///Delete files async
       _tempFiles.forEach((file) => file.delete());

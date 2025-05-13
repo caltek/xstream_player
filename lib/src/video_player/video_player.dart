@@ -254,6 +254,14 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
           break;
         case VideoEventType.unknown:
           break;
+        case VideoEventType.isPlayingChanged:
+          value = value.copyWith(isPlaying: event.isPlaying);
+          break;
+        case VideoEventType.videoSizeChanged:
+          value = value.copyWith(size: event.size);
+          break;
+        case VideoEventType.videoAnalytics:
+          break;
       }
     }
 
