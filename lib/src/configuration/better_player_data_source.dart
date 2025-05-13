@@ -76,6 +76,9 @@ class BetterPlayerDataSource {
   ///platform.
   final BetterPlayerBufferingConfiguration bufferingConfiguration;
 
+  ///signing signature for signed requests
+  final String? signature;
+
   BetterPlayerDataSource(
     this.type,
     this.url, {
@@ -98,6 +101,7 @@ class BetterPlayerDataSource {
     this.videoExtension,
     this.drmConfiguration,
     this.placeholder,
+    this.signature,
     this.bufferingConfiguration = const BetterPlayerBufferingConfiguration(),
   }) : assert(
             (type == BetterPlayerDataSourceType.network ||
@@ -124,6 +128,7 @@ class BetterPlayerDataSource {
     BetterPlayerVideoFormat? videoFormat,
     BetterPlayerDrmConfiguration? drmConfiguration,
     Widget? placeholder,
+    String? signature,
     BetterPlayerBufferingConfiguration bufferingConfiguration =
         const BetterPlayerBufferingConfiguration(),
   }) {
@@ -144,6 +149,7 @@ class BetterPlayerDataSource {
       drmConfiguration: drmConfiguration,
       placeholder: placeholder,
       bufferingConfiguration: bufferingConfiguration,
+      signature: signature,
     );
   }
 
