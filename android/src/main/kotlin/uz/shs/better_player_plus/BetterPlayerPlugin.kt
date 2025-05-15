@@ -295,7 +295,7 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             val formatHint = getParameter<String?>(dataSource, FORMAT_HINT_PARAMETER, null)
             val licenseUrl = getParameter<String?>(dataSource, LICENSE_URL_PARAMETER, null)
             val clearKey = getParameter<String?>(dataSource, DRM_CLEARKEY_PARAMETER, null)
-            val sig = getParameter(dataSource, USE_SIGNED_REQUEST_PARAMETER, null)
+            val sig = getParameter<String?>(dataSource, USE_SIGNED_REQUEST_PARAMETER, null)
             val drmHeaders: Map<String, String> =
                 getParameter(dataSource, DRM_HEADERS_PARAMETER, HashMap())
             player.setDataSource(

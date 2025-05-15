@@ -123,7 +123,7 @@ class SignedHttpDataSource(
 
                 // 5. Encode the resulting byte array to a Base64 string
                 //    Base64.NO_WRAP is important to avoid newlines in the output string
-                Base64.encodeToString(hmacBytes, Base64.NO_WRAP)
+                Base64.encodeToString(hmacBytes, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP).trim()
 
             } catch (e: NoSuchAlgorithmException) {
                 Log.e(

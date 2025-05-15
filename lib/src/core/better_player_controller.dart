@@ -309,9 +309,7 @@ class BetterPlayerController {
   ///master playlist.
   Future _setupAsmsDataSource(BetterPlayerDataSource source) async {
     final String? data = await BetterPlayerAsmsUtils.getDataFromUrl(
-      betterPlayerDataSource!.url,
-      _getHeaders(),
-    );
+        betterPlayerDataSource!.url, _getHeaders(), source.signature);
     if (data != null) {
       final BetterPlayerAsmsDataHolder _response =
           await BetterPlayerAsmsUtils.parse(data, betterPlayerDataSource!.url);

@@ -501,6 +501,7 @@ internal class BetterPlayer(
                 eventSink.error("VideoError", "Video player had error ${error.message}", "")
             }
         })
+        exoPlayer?.addAnalyticsListener(AnalyticsListener(eventSink))
         val reply: MutableMap<String, Any> = HashMap()
         reply["textureId"] = textureEntry.id()
         result.success(reply)

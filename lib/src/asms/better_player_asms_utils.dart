@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:better_player_plus/src/clearkey/better_player_clearkey_utils.dart';
 import 'package:better_player_plus/src/core/better_player_utils.dart';
 import 'package:better_player_plus/src/hls/better_player_hls_utils.dart';
+import 'package:flutter/material.dart';
 
 import 'better_player_asms_data_holder.dart';
 
@@ -33,12 +35,18 @@ class BetterPlayerAsmsUtils {
 
   ///Request data from given uri along with headers. May return null if resource
   ///is not available or on error.
-  static Future<String?> getDataFromUrl(
-    String url, [
-    Map<String, String?>? headers,
-  ]) async {
+  static Future<String?> getDataFromUrl(String url,
+      [Map<String, String?>? headers, String? sig]) async {
     try {
-      final request = await _httpClient.getUrl(Uri.parse(url));
+      var uri = Uri.parse(url);
+      if (sig != null) {
+        final lastSegment = uri.pathSegments.last;
+        final computedSig =
+            BetterPlayerClearKeyUtils.computeHmacSha256Base64(sig, lastSegment);
+        debugPrint("Computed sig: $computedSig");
+        uri = uri.replace(queryParameters: {"sig": computedSig});
+      }
+      final request = await _httpClient.getUrl(uri);
       if (headers != null) {
         headers.forEach((name, value) => request.headers.add(name, value!));
       }
