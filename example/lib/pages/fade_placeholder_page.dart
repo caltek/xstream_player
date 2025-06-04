@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:better_player_plus/better_player_plus.dart';
+import 'package:xstream_player/xstream_player.dart';
 import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 

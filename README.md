@@ -1,8 +1,8 @@
-# Better Player Plus
-[![pub package](https://img.shields.io/pub/v/better_player.svg)](https://pub.dartlang.org/packages/better_player)
-[![pub package](https://img.shields.io/github/license/jhomlala/betterplayer.svg?style=flat)](https://github.com/jhomlala/betterplayer)
-[![pub package](https://img.shields.io/badge/platform-flutter-blue.svg)](https://github.com/jhomlala/betterplayer)
-Use [better_player](https://pub.dev/packages/better_player). 
+# XStream Player
+[![pub package](https://img.shields.io/pub/v/xstream_player.svg)](https://pub.dartlang.org/packages/xstream_player)
+[![pub package](https://img.shields.io/github/license/SunnatilloShavkatov/betterplayer.svg?style=flat)](https://github.com/SunnatilloShavkatov/betterplayer)
+[![pub package](https://img.shields.io/badge/platform-flutter-blue.svg)](https://github.com/SunnatilloShavkatov/betterplayer)
+
 Advanced video player based on video_player and Chewie. It's solves many typical use cases and it's easy to run.
 
 <table>
@@ -63,7 +63,7 @@ Advanced video player based on video_player and Chewie. It's solves many typical
 </table>
 
 ## Introduction
-This plugin is based on [Chewie](https://github.com/brianegan/chewie). Chewie is awesome plugin and works well in many cases. Better Player is a continuation of ideas introduced in Chewie. Better player fix common bugs, adds more configuration options and solves typical use cases. 
+This plugin is based on [Chewie](https://github.com/brianegan/chewie). Chewie is an awesome plugin and works well in many cases. XStream Player is a continuation of ideas introduced in Chewie, with additional features and improvements. 
 
 **Features:**  
 ✔️ Fixed common bugs  
@@ -86,9 +86,9 @@ This plugin is based on [Chewie](https://github.com/brianegan/chewie). Chewie is
 
 
 ## Documentation
-* [Official documentation](https://jhomlala.github.io/betterplayer/)
-* [Example application](https://github.com/jhomlala/betterplayer/tree/master/example)
-* [API reference](https://pub.dev/documentation/better_player/latest/better_player/better_player-library.html)
+* [Official documentation](https://github.com/SunnatilloShavkatov/betterplayer)
+* [Example application](https://github.com/SunnatilloShavkatov/betterplayer/tree/master/example)
+* [API reference](https://pub.dev/documentation/xstream_player/latest/xstream_player/xstream_player-library.html)
 
 
 ## Important information

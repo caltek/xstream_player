@@ -1,5 +1,5 @@
-import 'package:better_player_plus/src/video_player/video_player.dart';
-import 'package:better_player_plus/src/video_player/video_player_platform_interface.dart';
+import 'package:xstream_player/src/video_player/video_player.dart';
+import 'package:xstream_player/src/video_player/video_player_platform_interface.dart';
 
 class MockVideoPlayerController extends VideoPlayerController {
   MockVideoPlayerController() : super(autoCreate: false) {
@@ -74,5 +74,6 @@ class MockVideoPlayerController extends VideoPlayerController {
     String? activityName,
     String? clearKey,
     String? videoExtension,
+    String? sig,
   }) async {}
 }
