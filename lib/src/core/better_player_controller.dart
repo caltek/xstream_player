@@ -1174,8 +1174,7 @@ class BetterPlayerController {
         if (event.metadata != null) _controllerAnalytics.add(event.metadata!);
         break;
       default:
-
-        ///TODO: Handle when needed
+        // TODO: Handle when needed
         break;
     }
   }
