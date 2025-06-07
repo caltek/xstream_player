@@ -1,6 +1,6 @@
 name: xstream_player
 description: Advanced video player based on video_player and Chewie. It's solves many typical use cases and it's easy to run.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/caltek/xstream_player
 documentation: https://github.com/caltek/xstream_player
 repository: https://github.com/caltek/xstream_player
