@@ -10,6 +10,7 @@
 #import "BetterPlayerTimeUtils.h"
 #import "BetterPlayerView.h"
 #import "BetterPlayerEzDrmAssetsLoaderDelegate.h"
+#import "BetterPlayerAnalyticsListener.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,6 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic) float playerRate;
 @property(nonatomic) int overriddenDuration;
 @property(nonatomic) AVPlayerTimeControlStatus lastAvPlayerTimeControlStatus;
+@property(nonatomic, strong) BetterPlayerAnalyticsListener* analyticsListener;
+@property(nonatomic) NSDate* lastSeekTime;
+@property(nonatomic) BOOL isCurrentlySeeking;
 - (void)play;
 - (void)pause;
 - (void)setIsLooping:(bool)isLooping;

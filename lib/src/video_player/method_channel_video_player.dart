@@ -441,6 +441,11 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
             key: key,
           );
         case 'analytics':
+          final String? collector = map["collector"] as String?;
+          final String? type = map["type"] as String?;
+          final String? code = map["code"] as String?;
+          final String? message = map["message"] as String?;
+
           return VideoEvent(
             eventType: VideoEventType.videoAnalytics,
             key: key,

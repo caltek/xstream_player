@@ -1171,7 +1171,13 @@ class BetterPlayerController {
         _postEvent(BetterPlayerEvent(BetterPlayerEventType.bufferingEnd));
         break;
       case VideoEventType.videoAnalytics:
-        if (event.metadata != null) _controllerAnalytics.add(event.metadata!);
+        if (event.metadata != null) {
+          final String? collector = event.metadata!["collector"] as String?;
+          final String? type = event.metadata!["type"] as String?;
+          BetterPlayerUtils.log(
+              "[Flutter Analytics] Processing analytics event in controller - Collector: $collector, Type: $type, Adding to analytics stream");
+          _controllerAnalytics.add(event.metadata!);
+        }
         break;
       default:
         // TODO: Handle when needed

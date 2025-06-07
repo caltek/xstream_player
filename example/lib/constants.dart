@@ -2,7 +2,7 @@ class Constants {
   static const String bugBuckBunnyVideoUrl =
       "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
   static const String forBiggerBlazesUrl =
-      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+      "https://content.jwplatform.com/manifests/yp34SRmf.m3u8";
   static const String fileTestVideoUrl = "testvideo.mp4";
   static const String fileTestVideoEncryptUrl = "testvideo_encrypt.mp4";
   static const String networkTestVideoEncryptUrl =

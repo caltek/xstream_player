@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:xstream_player/src/configuration/better_player_buffering_configuration.dart';
+import 'package:xstream_player/src/core/better_player_utils.dart';
 import 'package:xstream_player/src/video_player/video_player_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

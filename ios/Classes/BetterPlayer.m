@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #import "BetterPlayer.h"
-#import <better_player_plus/better_player_plus-Swift.h>
+#import <xstream_player/xstream_player-Swift.h>
 
 static void* timeRangeContext = &timeRangeContext;
 static void* statusContext = &statusContext;
@@ -26,6 +26,8 @@ AVPictureInPictureController *_pipController;
     _isInitialized = false;
     _isPlaying = false;
     _disposed = false;
+    _isCurrentlySeeking = NO;
+    _lastSeekTime = nil;
     _player = [[AVPlayer alloc] init];
     _player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
     ///Fix for loading large videos
@@ -72,8 +74,17 @@ AVPictureInPictureController *_pipController;
     _isInitialized = false;
     _isPlaying = false;
     _disposed = false;
+    _isCurrentlySeeking = NO;
+    _lastSeekTime = nil;
     _failedCount = 0;
     _key = nil;
+    
+    // Stop analytics listener
+    if (_analyticsListener) {
+        [_analyticsListener stopListening];
+        _analyticsListener = nil;
+    }
+    
     if (_player.currentItem == nil) {
         return;
     }
@@ -190,12 +201,12 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
   return transform;
 }
 
-- (void)setDataSourceAsset:(NSString*)asset withKey:(NSString*)key withCertificateUrl:(NSString*)certificateUrl withLicenseUrl:(NSString*)licenseUrl cacheKey:(NSString*)cacheKey cacheManager:(CacheManager*)cacheManager overriddenDuration:(int) overriddenDuration{
+- (void)setDataSourceAsset:(NSString*)asset withKey:(NSString*)key withCertificateUrl:(NSString*)certificateUrl withLicenseUrl:(NSString*)licenseUrl cacheKey:(NSString*)cacheKey cacheManager:(CacheManager*)cacheManager overriddenDuration:(int) overriddenDuration {
     NSString* path = [[NSBundle mainBundle] pathForResource:asset ofType:nil];
     return [self setDataSourceURL:[NSURL fileURLWithPath:path] withKey:key withCertificateUrl:certificateUrl withLicenseUrl:(NSString*)licenseUrl withHeaders: @{} withCache: false cacheKey:cacheKey cacheManager:cacheManager overriddenDuration:overriddenDuration videoExtension: nil];
 }
 
-- (void)setDataSourceURL:(NSURL*)url withKey:(NSString*)key withCertificateUrl:(NSString*)certificateUrl withLicenseUrl:(NSString*)licenseUrl withHeaders:(NSDictionary*)headers withCache:(BOOL)useCache cacheKey:(NSString*)cacheKey cacheManager:(CacheManager*)cacheManager overriddenDuration:(int) overriddenDuration videoExtension: (NSString*) videoExtension{
+- (void)setDataSourceURL:(NSURL*)url withKey:(NSString*)key withCertificateUrl:(NSString*)certificateUrl withLicenseUrl:(NSString*)licenseUrl withHeaders:(NSDictionary*)headers withCache:(BOOL)useCache cacheKey:(NSString*)cacheKey cacheManager:(CacheManager*)cacheManager overriddenDuration:(int) overriddenDuration videoExtension: (NSString*) videoExtension {
     _overriddenDuration = 0;
     if (headers == [NSNull null] || headers == NULL){
         headers = @{};
@@ -212,8 +223,11 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
         
         item = [cacheManager getCachingPlayerItemForNormalPlayback:url cacheKey:cacheKey videoExtension: videoExtension headers:headers];
     } else {
-        AVURLAsset* asset = [AVURLAsset URLAssetWithURL:url
-                                                options:@{@"AVURLAssetHTTPHeaderFieldsKey" : headers}];
+        AVURLAsset* asset;
+        
+        asset = [AVURLAsset URLAssetWithURL:url
+                                    options:@{@"AVURLAssetHTTPHeaderFieldsKey" : headers}];
+        
         if (certificateUrl && certificateUrl != [NSNull null] && [certificateUrl length] > 0) {
             NSURL * certificateNSURL = [[NSURL alloc] initWithString: certificateUrl];
             NSURL * licenseNSURL = [[NSURL alloc] initWithString: licenseUrl];
@@ -237,6 +251,14 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
     _isStalledCheckStarted = false;
     _playerRate = 1;
     [_player replaceCurrentItemWithPlayerItem:item];
+    
+    // Initialize analytics listener
+    if (_eventSink) {
+        _analyticsListener = [[BetterPlayerAnalyticsListener alloc] initWithEventSink:_eventSink 
+                                                                               player:_player 
+                                                                                  key:key];
+        [_analyticsListener startListening];
+    }
 
     AVAsset* asset = [item asset];
     void (^assetCompletionHandler)(void) = ^{
@@ -378,6 +400,17 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
         AVPlayerItem* item = (AVPlayerItem*)object;
         switch (item.status) {
             case AVPlayerItemStatusFailed:
+                if (item.errorLog) {
+                    for (AVPlayerItemErrorLogEvent *event in item.errorLog.events) {
+                        NSLog(@"BetterPlayer: AVPlayerItemErrorLogEvent details:");
+                        NSLog(@"... URI: %@", event.URI);
+                        NSLog(@"... serverAddress: %@", event.serverAddress);
+                        NSLog(@"... playbackSessionID: %@", event.playbackSessionID);
+                        NSLog(@"... errorStatusCode: %ld", (long)event.errorStatusCode);
+                        NSLog(@"... errorDomain: %@", event.errorDomain);
+                        NSLog(@"... errorComment: %@", event.errorComment);
+                    }
+                }
                 NSLog(@"Failed to load video:");
                 NSLog(item.error.debugDescription);
 
@@ -519,18 +552,55 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
 }
 
 - (void)seekTo:(int)location {
-    ///When player is playing, pause video, seek to new position and start again. This will prevent issues with seekbar jumps.
+    // Throttle seeks to prevent UI blocking from rapid successive calls
+    NSDate* now = [NSDate date];
+    if (_lastSeekTime && [now timeIntervalSinceDate:_lastSeekTime] < 0.1) {
+        return; // Skip if last seek was less than 100ms ago
+    }
+    _lastSeekTime = now;
+    
+    // Prevent overlapping seeks
+    if (_isCurrentlySeeking) {
+        return;
+    }
+    
+    // Validate player state
+    if (!_player || !_player.currentItem || _disposed) {
+        return;
+    }
+    
+    _isCurrentlySeeking = YES;
     bool wasPlaying = _isPlaying;
-    if (wasPlaying){
+    CMTime previousCMTime = _player.currentTime;
+    CMTime targetCMTime = CMTimeMake(location, 1000);
+    
+    // Get duration for tolerance calculation
+    CMTimeValue duration = _player.currentItem.asset.duration.value;
+    
+    // Use tolerance based on official Flutter implementation
+    // Without adding tolerance when seeking to duration, seekToTime will never complete
+    CMTime tolerance = location == duration ? CMTimeMake(1, 1000) : kCMTimeZero;
+    
+    // Pause immediately if playing
+    if (wasPlaying) {
         [_player pause];
     }
 
-    [_player seekToTime:CMTimeMake(location, 1000)
-        toleranceBefore:kCMTimeZero
-         toleranceAfter:kCMTimeZero
-      completionHandler:^(BOOL finished){
-        if (wasPlaying){
-            _player.rate = _playerRate;
+    [_player seekToTime:targetCMTime
+        toleranceBefore:tolerance
+         toleranceAfter:tolerance
+      completionHandler:^(BOOL finished) {
+        self->_isCurrentlySeeking = NO;
+        
+        // Check if position actually changed (like official implementation)
+        if (CMTimeCompare(self->_player.currentTime, previousCMTime) != 0) {
+            // Position changed, we may need to ensure frame is available
+            // This is important for paused videos to show the new frame
+        }
+        
+        // Only resume if seek completed successfully and player is still valid
+        if (finished && wasPlaying && self->_player && !self->_disposed) {
+            self->_player.rate = self->_playerRate;
         }
     }];
 }
@@ -730,6 +800,15 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
 - (FlutterError* _Nullable)onListenWithArguments:(id _Nullable)arguments
                                        eventSink:(nonnull FlutterEventSink)events {
     _eventSink = events;
+    
+    // Reinitialize analytics listener if we have a player and key but no analytics listener
+    if (_player && _key && !_analyticsListener) {
+        _analyticsListener = [[BetterPlayerAnalyticsListener alloc] initWithEventSink:_eventSink 
+                                                                               player:_player 
+                                                                                  key:_key];
+        [_analyticsListener startListening];
+    }
+    
     // TODO(@recastrodiaz): remove the line below when the race condition is resolved:
     // https://github.com/flutter/flutter/issues/21483
     // This line ensures the 'initialized' event is sent when the event
@@ -744,6 +823,11 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
 /// so the channel is going to die or is already dead.
 - (void)disposeSansEventChannel {
     @try{
+        // Stop analytics listener before clearing
+        if (_analyticsListener) {
+            [_analyticsListener stopListening];
+            _analyticsListener = nil;
+        }
         [self clear];
     }
     @catch(NSException *exception) {
