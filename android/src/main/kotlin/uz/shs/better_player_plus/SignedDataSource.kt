@@ -34,14 +34,7 @@ class SignedHttpDataSource(
         // Option 2: Add as a query parameter (if queryParamName is set)
         val modifiedUri = dataSpec.uri.buildUpon().appendQueryParameter("sig", signature).build()
         dataSpecBuilder.setUri(modifiedUri)
-
-
         val modifiedDataSpec = dataSpecBuilder.build()
-
-        Log.d(
-            "SignedHttpDataSource",
-            "Opening signed request for: " + modifiedDataSpec.uri.toString() + ": " + signature
-        )
         return upstreamDataSource.open(modifiedDataSpec)
     }
 
