@@ -29,6 +29,7 @@ AVPictureInPictureController *_pipController;
     _isCurrentlySeeking = NO;
     _lastSeekTime = nil;
     _player = [[AVPlayer alloc] init];
+    _trackUtil = [[TrackUtil alloc] init];
     _player.actionAtItemEnd = AVPlayerActionAtItemEndNone;
     ///Fix for loading large videos
     if (@available(iOS 10.0, *)) {
@@ -227,7 +228,7 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
         
         asset = [AVURLAsset URLAssetWithURL:url
                                     options:@{@"AVURLAssetHTTPHeaderFieldsKey" : headers}];
-        
+        [_trackUtil extractUtilWithAsset:asset eventSink:_eventSink key:_key];
         if (certificateUrl && certificateUrl != [NSNull null] && [certificateUrl length] > 0) {
             NSURL * certificateNSURL = [[NSURL alloc] initWithString: certificateUrl];
             NSURL * licenseNSURL = [[NSURL alloc] initWithString: licenseUrl];
@@ -483,7 +484,6 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
 
         AVAsset *asset = _player.currentItem.asset;
         bool onlyAudio =  [[asset tracksWithMediaType:AVMediaTypeVideo] count] == 0;
-
         // The player has not yet initialized.
         if (!onlyAudio && height == CGSizeZero.height && width == CGSizeZero.width) {
             return;
@@ -645,7 +645,7 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
 - (void)setTrackParameters:(int) width: (int) height: (int)bitrate {
     _player.currentItem.preferredPeakBitRate = bitrate;
     if (@available(iOS 11.0, *)) {
-        if (width == 0 && height == 0){
+        if (width == -1 && height == -1){
             _player.currentItem.preferredMaximumResolution = CGSizeZero;
         } else {
             _player.currentItem.preferredMaximumResolution = CGSizeMake(width, height);
@@ -767,12 +767,8 @@ static inline CGFloat radiansToDegrees(CGFloat radians) {
 
     for (int audioTrackIndex = 0; audioTrackIndex < [options count]; audioTrackIndex++) {
         AVMediaSelectionOption* option = [options objectAtIndex:audioTrackIndex];
-        NSArray *metaDatas = [AVMetadataItem metadataItemsFromArray:option.commonMetadata withKey:@"title" keySpace:@"comn"];
-        if (metaDatas.count > 0) {
-            NSString *title = ((AVMetadataItem*)[metaDatas objectAtIndex:0]).stringValue;
-            if ([name compare:title] == NSOrderedSame && audioTrackIndex == index ){
-                [[_player currentItem] selectMediaOption:option inMediaSelectionGroup: audioSelectionGroup];
-            }
+        if (option.displayName == name) {
+            [[_player currentItem] selectMediaOption:option inMediaSelectionGroup: audioSelectionGroup];
         }
 
     }

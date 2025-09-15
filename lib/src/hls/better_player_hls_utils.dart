@@ -50,14 +50,14 @@ sealed class BetterPlayerHlsUtils {
         for (final variant in parsedPlaylist.variants) {
           tracks.add(
             BetterPlayerAsmsTrack(
-              '',
-              variant.format.width,
-              variant.format.height,
-              variant.format.bitrate,
-              0,
-              '',
-              '',
-            ),
+                '',
+                variant.format.width,
+                variant.format.height,
+                variant.format.bitrate,
+                0,
+                '',
+                '',
+                variant.audioGroupId),
           );
         }
       }
@@ -186,6 +186,7 @@ sealed class BetterPlayerHlsUtils {
           label: audio.name,
           language: audio.format.language,
           url: audio.url.toString(),
+          audioGroupId: audio.groupId,
         ));
       }
     }

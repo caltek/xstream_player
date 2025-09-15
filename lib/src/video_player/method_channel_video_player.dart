@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 import 'dart:async';
 import 'package:xstream_player/src/configuration/better_player_buffering_configuration.dart';
+import 'package:xstream_player/src/configuration/better_player_track.dart';
 import 'package:xstream_player/src/core/better_player_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -95,7 +96,8 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
           'activityName': dataSource.activityName,
           'clearKey': dataSource.clearKey,
           'videoExtension': dataSource.videoExtension,
-          'sig': dataSource.sig
+          'sig': dataSource.sig,
+          'videoConstraint': dataSource.videoConstraint,
         };
         break;
       case DataSourceType.file:
@@ -177,6 +179,20 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Future<void> setTrackParameters(
+      int? textureId, int? width, int? height, int? bitrate) {
+    return _channel.invokeMethod<void>(
+      'setTrackParameters',
+      <String, dynamic>{
+        'textureId': textureId,
+        'width': width,
+        'height': height,
+        'bitrate': bitrate,
+      },
+    );
+  }
+
+  @override
+  Future<void> setTrackConstraint(
       int? textureId, int? width, int? height, int? bitrate) {
     return _channel.invokeMethod<void>(
       'setTrackParameters',
@@ -356,6 +372,7 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
             size: size,
           );
         case 'videoSizeChanged':
+          debugPrint('videoSizeChanged: $map');
           double width = 0;
           double height = 0;
 
@@ -441,15 +458,16 @@ class MethodChannelVideoPlayer extends VideoPlayerPlatform {
             key: key,
           );
         case 'analytics':
-          final String? collector = map["collector"] as String?;
-          final String? type = map["type"] as String?;
-          final String? code = map["code"] as String?;
-          final String? message = map["message"] as String?;
-
           return VideoEvent(
             eventType: VideoEventType.videoAnalytics,
             key: key,
             metadata: map,
+          );
+        case 'tracksChanged':
+          return VideoEvent(
+            eventType: VideoEventType.trackChanged,
+            key: key,
+            tracks: BetterPlayerTrack.tracksFromJson(map['tracks']),
           );
         default:
           return VideoEvent(

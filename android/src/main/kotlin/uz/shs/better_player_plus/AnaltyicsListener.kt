@@ -23,6 +23,8 @@ class AnalyticsListener(private val eventSink: QueuingEventSink) : AnalyticsList
         super.onPlayerError(eventTime, error)
     }
 
+
+
     override fun onLoadCompleted(
         eventTime: AnalyticsListener.EventTime,
         loadEventInfo: LoadEventInfo,

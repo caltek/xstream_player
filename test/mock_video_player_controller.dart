@@ -75,5 +75,6 @@ class MockVideoPlayerController extends VideoPlayerController {
     String? clearKey,
     String? videoExtension,
     String? sig,
+    Map<String, int>? videoConstraint,
   }) async {}
 }

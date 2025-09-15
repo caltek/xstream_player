@@ -1,5 +1,6 @@
 package uz.shs.better_player_plus
 
+import AdaptiveTrackSelector
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -28,6 +29,7 @@ import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.common.Tracks
 import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
@@ -48,6 +50,7 @@ import androidx.media3.exoplayer.drm.HttpMediaDrmCallback
 import androidx.media3.exoplayer.drm.LocalMediaDrmCallback
 import androidx.media3.exoplayer.drm.UnsupportedDrmException
 import androidx.media3.exoplayer.hls.HlsMediaSource
+import androidx.media3.exoplayer.hls.HlsTrackMetadataEntry
 import androidx.media3.exoplayer.smoothstreaming.DefaultSsChunkSource
 import androidx.media3.exoplayer.smoothstreaming.SsMediaSource
 import androidx.media3.exoplayer.source.ClippingMediaSource
@@ -84,7 +87,8 @@ internal class BetterPlayer(
 ) {
     private val exoPlayer: ExoPlayer?
     private val eventSink = QueuingEventSink()
-    private val trackSelector: DefaultTrackSelector = DefaultTrackSelector(context)
+    private val adaptiveTrackLimiter = AdaptiveTrackLimiter()
+    private var trackSelector: DefaultTrackSelector = DefaultTrackSelector(context)
     private val loadControl: LoadControl
     private var isInitialized = false
     private var surface: Surface? = null
@@ -111,6 +115,9 @@ internal class BetterPlayer(
             this.customDefaultLoadControl.bufferForPlaybackAfterRebufferMs
         )
         loadControl = loadBuilder.build()
+        trackSelector = DefaultTrackSelector(
+            context, AdaptiveTrackSelector.Factory(trackLimiter = adaptiveTrackLimiter)
+        )
         exoPlayer =
             ExoPlayer.Builder(context).setTrackSelector(trackSelector).setLoadControl(loadControl)
                 .build()
@@ -135,6 +142,7 @@ internal class BetterPlayer(
         cacheKey: String?,
         clearKey: String?,
         sig: String?,
+        videoConstraint: Map<String, Int?>?
     ) {
         this.key = key
         isInitialized = false
@@ -201,6 +209,7 @@ internal class BetterPlayer(
         } else {
             exoPlayer?.setMediaSource(mediaSource)
         }
+        adaptiveTrackLimiter.videoTrackConstraint = videoConstraint
         exoPlayer?.prepare()
         result.success(null)
     }
@@ -497,6 +506,10 @@ internal class BetterPlayer(
                 }
             }
 
+            override fun onTracksChanged(tracks: Tracks) {
+                sendTracksUpdate(tracks)
+            }
+
             override fun onPlayerError(error: PlaybackException) {
                 eventSink.error("VideoError", "Video player had error ${error.message}", "")
             }
@@ -518,6 +531,65 @@ internal class BetterPlayer(
             eventSink.success(event)
             lastSendBufferedPosition = bufferedPosition
         }
+    }
+
+    fun sendTracksUpdate(tracks: Tracks) {
+        val event: MutableMap<String, Any> = HashMap()
+        event["event"] = "tracksChanged"
+        val evTracks = mutableListOf<Map<String, Any?>>()
+        for (group in tracks.groups) {
+            val evTrack: MutableMap<String, Any?> = HashMap()
+            when (group.type) {
+                C.TRACK_TYPE_VIDEO -> {
+                    evTrack["type"] = "video"
+                }
+
+                C.TRACK_TYPE_AUDIO -> {
+                    evTrack["type"] = "audio"
+                }
+
+                C.TRACK_TYPE_TEXT -> {
+                    evTrack["type"] = "text"
+                }
+
+                else -> {
+                    continue
+                }
+            }
+            for (i in 0 until group.length) {
+                val format = group.getTrackFormat(i)
+                evTrack["groupId"] = group.mediaTrackGroup.id
+                evTrack["groupIndex"] = i
+                evTrack["id"] = format.id
+                evTrack["language"] = format.language
+                evTrack["mime"] = format.sampleMimeType
+                evTrack["label"] = format.label
+                evTrack["width"] = format.width
+                evTrack["height"] = format.height
+                evTrack["bitrate"] = format.bitrate
+                evTrack["frameRate"] = format.frameRate
+                evTrack["isSelected"] = group.isTrackSelected(i)
+                evTrack["isSupported"] = group.isTrackSupported(i)
+                val entries = format.metadata?.length() ?: 0
+                if (entries > 0) {
+                    for (en in 0 until entries) {
+                        val meta = format.metadata?.get(en)
+                        if (meta is HlsTrackMetadataEntry) {
+                            val variantInfo = meta.variantInfos.firstOrNull()
+                            evTrack["audioGroupId"] = when (group.type) {
+                                C.TRACK_TYPE_AUDIO -> meta.groupId
+                                C.TRACK_TYPE_VIDEO -> variantInfo?.audioGroupId
+                                else -> null
+                            }
+                            evTrack["subtitleGroupId"] = variantInfo?.subtitleGroupId
+                        }
+                    }
+                }
+                evTracks.add(evTrack.toMap())
+            }
+        }
+        event["tracks"] = evTracks.toList()
+        eventSink.success(event)
     }
 
     private fun setAudioAttributes(exoPlayer: ExoPlayer?, mixWithOthers: Boolean) {
@@ -551,19 +623,59 @@ internal class BetterPlayer(
         exoPlayer?.playbackParameters = playbackParameters
     }
 
-    fun setTrackParameters(width: Int, height: Int, bitrate: Int) {
+    fun setTrackConstraint(width: Int?, height: Int?, bitrate: Int?) {
         val parametersBuilder = trackSelector.buildUponParameters()
-        if (width != 0 && height != 0) {
-            parametersBuilder.setMaxVideoSize(width, height)
+        parametersBuilder.clearVideoSizeConstraints()
+        parametersBuilder.setMaxVideoBitrate(Int.MAX_VALUE)
+        if (width != null && width != 0 && height != null && height != 0) {
+            Log.d("SET_CONSTRAINT", "SET-SIZE $width $height")
+            parametersBuilder.setMaxVideoSizeSd()
+            parametersBuilder.setExceedVideoConstraintsIfNecessary(false)
+            parametersBuilder.setForceHighestSupportedBitrate(true)
         }
-        if (bitrate != 0) {
+        if (bitrate != null && bitrate != 0) {
+            Log.d("SET_CONSTRAINT", "SET-BITRATE $bitrate")
             parametersBuilder.setMaxVideoBitrate(bitrate)
         }
-        if (width == 0 && height == 0 && bitrate == 0) {
-            parametersBuilder.clearVideoSizeConstraints()
-            parametersBuilder.setMaxVideoBitrate(Int.MAX_VALUE)
+        trackSelector.parameters = parametersBuilder.build()
+    }
+
+    fun setTrackParameters(width: Int, height: Int, bitrate: Int) {
+        Log.d("TRACK-SELECTOR", "SET-PARAMETERS $width $height $bitrate")
+        val trackParameters = trackSelector.buildUponParameters()
+        val tracks = exoPlayer?.currentTracks ?: run {
+            Log.d("TRACK-SELECTOR", "NO TRACKS FOUND")
+            return
         }
-        trackSelector.setParameters(parametersBuilder)
+
+        val videoGroup = tracks.groups.find { it.type == C.TRACK_TYPE_VIDEO } ?: run {
+            Log.d("TRACK-SELECTOR", "NO VIDEO TRACKS FOUND")
+            return
+        }
+        if (width == -1 && height == -1 && bitrate == -1) {
+            Log.d("TRACK-SELECTOR", "SWITCHING TO AUTO QUALITY")
+            trackParameters.clearOverridesOfType(C.TRACK_TYPE_VIDEO)
+            trackSelector.setParameters(trackParameters)
+            return
+        }
+        var trackIndex: Int? = null
+        for (i in 0 until videoGroup.length) {
+            val format = videoGroup.getTrackFormat(i)
+            if (format.width == width && format.height == height) {
+                trackIndex = i
+                break
+            }
+        }
+        trackIndex?.run {
+            trackParameters.clearOverridesOfType(C.TRACK_TYPE_VIDEO)
+            val trackOverrides = TrackSelectionOverride(videoGroup.mediaTrackGroup, this)
+            trackParameters.setOverrideForType(trackOverrides)
+            trackSelector.setParameters(trackParameters)
+            Log.d("TRACK-SELECTOR", "SWITCHING TO $trackIndex $width x $height")
+        } ?: run {
+            Log.d("TRACK-SELECTOR", "NO TRACK FOUND MATCHING SPEC")
+            return
+        }
     }
 
     fun seekTo(location: Int) {
@@ -679,53 +791,27 @@ internal class BetterPlayer(
     }
 
     fun setAudioTrack(name: String, index: Int) {
-        try {
-            val mappedTrackInfo = trackSelector.currentMappedTrackInfo
-            if (mappedTrackInfo != null) {
-                for (rendererIndex in 0 until mappedTrackInfo.rendererCount) {
-                    if (mappedTrackInfo.getRendererType(rendererIndex) != C.TRACK_TYPE_AUDIO) {
-                        continue
-                    }
-                    val trackGroupArray = mappedTrackInfo.getTrackGroups(rendererIndex)
-                    var hasElementWithoutLabel = false
-                    var hasStrangeAudioTrack = false
-                    for (groupIndex in 0 until trackGroupArray.length) {
-                        val group = trackGroupArray[groupIndex]
-                        for (groupElementIndex in 0 until group.length) {
-                            val format = group.getFormat(groupElementIndex)
-                            if (format.label == null) {
-                                hasElementWithoutLabel = true
-                            }
-                            if (format.id != null && format.id == "1/15") {
-                                hasStrangeAudioTrack = true
-                            }
-                        }
-                    }
-                    for (groupIndex in 0 until trackGroupArray.length) {
-                        val group = trackGroupArray[groupIndex]
-                        for (groupElementIndex in 0 until group.length) {
-                            val label = group.getFormat(groupElementIndex).label
-                            if (name == label && index == groupIndex) {
-                                setAudioTrack(rendererIndex, groupIndex)
-                                return
-                            }
-
-                            ///Fallback option
-                            if (!hasStrangeAudioTrack && hasElementWithoutLabel && index == groupIndex) {
-                                setAudioTrack(rendererIndex, groupIndex)
-                                return
-                            }
-                            ///Fallback option
-                            if (hasStrangeAudioTrack && name == label) {
-                                setAudioTrack(rendererIndex, groupIndex)
-                                return
-                            }
-                        }
-                    }
+        Log.d("TRACK-SELECTOR", "SET-AUDIO-TRACK $name $index")
+        val trackParameters = trackSelector.buildUponParameters()
+        val tracks = exoPlayer?.currentTracks ?: run {
+            Log.d("TRACK-SELECTOR", "NO TRACKS FOUND")
+            return
+        }
+        val audioGroup =
+            tracks.groups.find { it.type == C.TRACK_TYPE_AUDIO && it.mediaTrackGroup.id == name }
+                ?: run {
+                    Log.d("TRACK-SELECTOR", "NO AUDIO TRACKS FOUND")
+                    return
                 }
-            }
-        } catch (exception: Exception) {
-            Log.e(TAG, "setAudioTrack failed$exception")
+        val trackIndex: Int? = if (index >= 0 && index < audioGroup.length) index else null
+        trackIndex?.run {
+            trackParameters.clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+            val trackOverrides = TrackSelectionOverride(audioGroup.mediaTrackGroup, this)
+            trackParameters.setOverrideForType(trackOverrides)
+            trackSelector.setParameters(trackParameters)
+        } ?: run {
+            Log.d("TRACK-SELECTOR", "NO TRACK FOUND MATCHING SPEC")
+            return
         }
     }
 

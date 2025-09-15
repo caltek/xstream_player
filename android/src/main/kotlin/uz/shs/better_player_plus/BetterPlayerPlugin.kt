@@ -13,6 +13,8 @@ import android.os.Looper
 import android.util.Log
 import android.util.LongSparseArray
 import android.util.Rational
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import io.flutter.embedding.engine.loader.FlutterLoader
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
@@ -29,6 +31,7 @@ import uz.shs.better_player_plus.BetterPlayerCache.releaseCache
 /**
  * Android platform implementation of the VideoPlayerPlugin.
  */
+
 class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
     private val videoPlayers = LongSparseArray<BetterPlayer>()
     private val dataSources = LongSparseArray<Map<String, Any?>>()
@@ -91,6 +94,7 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         dataSources.clear()
     }
 
+    @UnstableApi
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         if (flutterState == null || flutterState?.textureRegistry == null) {
             result.error("no_activity", "better_player plugin requires a foreground activity", null)
@@ -221,6 +225,15 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
                 isPictureInPictureSupported()
             )
 
+            SET_TRACK_CONSTRAINT -> {
+                player.setTrackConstraint(
+                    call.argument(WIDTH_PARAMETER),
+                    call.argument(HEIGHT_PARAMETER),
+                    call.argument(BITRATE_PARAMETER)
+                )
+                result.success(null)
+            }
+
             SET_AUDIO_TRACK_METHOD -> {
                 val name = call.argument<String?>(NAME_PARAMETER)
                 val index = call.argument<Int?>(INDEX_PARAMETER)
@@ -281,6 +294,7 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
                 null,
                 null,
                 null,
+                null,
                 null
             )
         } else {
@@ -298,6 +312,7 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             val sig = getParameter<String?>(dataSource, USE_SIGNED_REQUEST_PARAMETER, null)
             val drmHeaders: Map<String, String> =
                 getParameter(dataSource, DRM_HEADERS_PARAMETER, HashMap())
+            val videoConstraint = getParameter<HashMap<String, Int?>?>(dataSource, VIDEO_CONSTRAINT_PARAMETER, null)
             player.setDataSource(
                 flutterState!!.applicationContext,
                 key,
@@ -313,7 +328,8 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
                 drmHeaders,
                 cacheKey,
                 clearKey,
-                sig
+                sig,
+                videoConstraint
             )
         }
     }
@@ -324,6 +340,7 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
      * @param call   - invoked method data
      * @param result - result which should be updated
      */
+    @OptIn(UnstableApi::class)
     private fun preCache(call: MethodCall, result: MethodChannel.Result) {
         val dataSource = call.argument<Map<String, Any?>>(DATA_SOURCE_PARAMETER)
         if (dataSource != null) {
@@ -547,6 +564,7 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         private const val DRM_HEADERS_PARAMETER = "drmHeaders"
         private const val DRM_CLEARKEY_PARAMETER = "clearKey"
         private const val USE_SIGNED_REQUEST_PARAMETER = "sig"
+        private const val VIDEO_CONSTRAINT_PARAMETER = "videoConstraint"
         private const val MIX_WITH_OTHERS_PARAMETER = "mixWithOthers"
         const val URL_PARAMETER = "url"
         const val PRE_CACHE_SIZE_PARAMETER = "preCacheSize"
@@ -565,6 +583,7 @@ class BetterPlayerPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         private const val SET_DATA_SOURCE_METHOD = "setDataSource"
         private const val SET_LOOPING_METHOD = "setLooping"
         private const val SET_VOLUME_METHOD = "setVolume"
+        private const val SET_TRACK_CONSTRAINT = "setTrackConstraint"
         private const val PLAY_METHOD = "play"
         private const val PAUSE_METHOD = "pause"
         private const val SEEK_TO_METHOD = "seekTo"

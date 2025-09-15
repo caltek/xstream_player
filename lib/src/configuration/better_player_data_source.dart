@@ -2,6 +2,7 @@ import 'package:xstream_player/src/configuration/better_player_buffering_configu
 import 'package:xstream_player/src/configuration/better_player_data_source_type.dart';
 import 'package:xstream_player/src/configuration/better_player_drm_configuration.dart';
 import 'package:xstream_player/src/configuration/better_player_notification_configuration.dart';
+import 'package:xstream_player/src/configuration/better_player_video_constraint.dart';
 import 'package:xstream_player/src/configuration/better_player_video_format.dart';
 import 'package:xstream_player/src/subtitles/better_player_subtitles_source.dart';
 import 'package:flutter/widgets.dart';
@@ -79,6 +80,9 @@ class BetterPlayerDataSource {
   ///signing signature for signed requests
   final String? signature;
 
+  ///Configuration of video constraint
+  final BetterPlayerVideoConstraint? videoConstraint;
+
   BetterPlayerDataSource(
     this.type,
     this.url, {
@@ -102,6 +106,7 @@ class BetterPlayerDataSource {
     this.drmConfiguration,
     this.placeholder,
     this.signature,
+    this.videoConstraint,
     this.bufferingConfiguration = const BetterPlayerBufferingConfiguration(),
   }) : assert(
             (type == BetterPlayerDataSourceType.network ||
@@ -129,6 +134,7 @@ class BetterPlayerDataSource {
     BetterPlayerDrmConfiguration? drmConfiguration,
     Widget? placeholder,
     String? signature,
+    BetterPlayerVideoConstraint? videoConstraint,
     BetterPlayerBufferingConfiguration bufferingConfiguration =
         const BetterPlayerBufferingConfiguration(),
   }) {
@@ -150,6 +156,7 @@ class BetterPlayerDataSource {
       placeholder: placeholder,
       bufferingConfiguration: bufferingConfiguration,
       signature: signature,
+      videoConstraint: videoConstraint,
     );
   }
 

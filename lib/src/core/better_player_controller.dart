@@ -101,6 +101,24 @@ class BetterPlayerController {
   ///Currently selected player track. Used only for HLS / DASH.
   BetterPlayerAsmsTrack? _betterPlayerAsmsTrack;
 
+  ///Currently selected native player track(video). Used only for HLS / DASH.
+  BetterPlayerTrack? _videoPlayerTrack;
+
+  ///Currently selected native player track(audio). Used only for HLS / DASH.
+  BetterPlayerTrack? _audioPlayerTrack;
+
+  ///Currently selected native player track(subtitle). Used only for HLS / DASH.
+  BetterPlayerTrack? _subtitlePlayerTrack;
+
+  ///Currently selected native player track(video). Used only for HLS / DASH.
+  BetterPlayerTrack? get videoPlayerTrack => _videoPlayerTrack;
+
+  ///Currently selected native player track(audio). Used only for HLS / DASH.
+  BetterPlayerTrack? get audioPlayerTrack => _audioPlayerTrack;
+
+  ///Currently selected native player track(subtitle). Used only for HLS / DASH.
+  BetterPlayerTrack? get subtitlePlayerTrack => _subtitlePlayerTrack;
+
   ///Currently selected player track. Used only for HLS / DASH.
   BetterPlayerAsmsTrack? get betterPlayerAsmsTrack => _betterPlayerAsmsTrack;
 
@@ -280,7 +298,9 @@ class BetterPlayerController {
 
     ///Process data source
     await _setupDataSource(betterPlayerDataSource);
-    setTrack(BetterPlayerAsmsTrack.defaultTrack());
+    if (betterPlayerDataSource.useAsmsTracks == true) {
+      setTrack(BetterPlayerAsmsTrack.defaultTrack());
+    }
   }
 
   ///Configure subtitles based on subtitles source.
@@ -448,35 +468,37 @@ class BetterPlayerController {
     switch (betterPlayerDataSource.type) {
       case BetterPlayerDataSourceType.network:
         await videoPlayerController?.setNetworkDataSource(
-            betterPlayerDataSource.url,
-            headers: _getHeaders(),
-            useCache:
-                _betterPlayerDataSource!.cacheConfiguration?.useCache ?? false,
-            maxCacheSize:
-                _betterPlayerDataSource!.cacheConfiguration?.maxCacheSize ?? 0,
-            maxCacheFileSize:
-                _betterPlayerDataSource!.cacheConfiguration?.maxCacheFileSize ??
-                    0,
-            cacheKey: _betterPlayerDataSource?.cacheConfiguration?.key,
-            showNotification: _betterPlayerDataSource
-                ?.notificationConfiguration?.showNotification,
-            title: _betterPlayerDataSource?.notificationConfiguration?.title,
-            author: _betterPlayerDataSource?.notificationConfiguration?.author,
-            imageUrl:
-                _betterPlayerDataSource?.notificationConfiguration?.imageUrl,
-            notificationChannelName: _betterPlayerDataSource
-                ?.notificationConfiguration?.notificationChannelName,
-            overriddenDuration: _betterPlayerDataSource!.overriddenDuration,
-            formatHint: _getVideoFormat(_betterPlayerDataSource!.videoFormat),
-            licenseUrl: _betterPlayerDataSource?.drmConfiguration?.licenseUrl,
-            certificateUrl:
-                _betterPlayerDataSource?.drmConfiguration?.certificateUrl,
-            drmHeaders: _betterPlayerDataSource?.drmConfiguration?.headers,
-            activityName: _betterPlayerDataSource
-                ?.notificationConfiguration?.activityName,
-            clearKey: _betterPlayerDataSource?.drmConfiguration?.clearKey,
-            videoExtension: _betterPlayerDataSource!.videoExtension,
-            sig: betterPlayerDataSource.signature);
+          betterPlayerDataSource.url,
+          headers: _getHeaders(),
+          useCache:
+              _betterPlayerDataSource!.cacheConfiguration?.useCache ?? false,
+          maxCacheSize:
+              _betterPlayerDataSource!.cacheConfiguration?.maxCacheSize ?? 0,
+          maxCacheFileSize:
+              _betterPlayerDataSource!.cacheConfiguration?.maxCacheFileSize ??
+                  0,
+          cacheKey: _betterPlayerDataSource?.cacheConfiguration?.key,
+          showNotification: _betterPlayerDataSource
+              ?.notificationConfiguration?.showNotification,
+          title: _betterPlayerDataSource?.notificationConfiguration?.title,
+          author: _betterPlayerDataSource?.notificationConfiguration?.author,
+          imageUrl:
+              _betterPlayerDataSource?.notificationConfiguration?.imageUrl,
+          notificationChannelName: _betterPlayerDataSource
+              ?.notificationConfiguration?.notificationChannelName,
+          overriddenDuration: _betterPlayerDataSource!.overriddenDuration,
+          formatHint: _getVideoFormat(_betterPlayerDataSource!.videoFormat),
+          licenseUrl: _betterPlayerDataSource?.drmConfiguration?.licenseUrl,
+          certificateUrl:
+              _betterPlayerDataSource?.drmConfiguration?.certificateUrl,
+          drmHeaders: _betterPlayerDataSource?.drmConfiguration?.headers,
+          activityName:
+              _betterPlayerDataSource?.notificationConfiguration?.activityName,
+          clearKey: _betterPlayerDataSource?.drmConfiguration?.clearKey,
+          videoExtension: _betterPlayerDataSource!.videoExtension,
+          sig: betterPlayerDataSource.signature,
+          videoConstraint: betterPlayerDataSource.videoConstraint?.toMap(),
+        );
 
         break;
       case BetterPlayerDataSourceType.file:
@@ -917,6 +939,54 @@ class BetterPlayerController {
     _betterPlayerAsmsTrack = track;
   }
 
+  ///set native video track
+  ///
+  void setNativeVideoTrack(BetterPlayerTrack track) {
+    if (videoPlayerController == null) {
+      throw StateError("The data source has not been initialized");
+    }
+    _postEvent(BetterPlayerEvent(BetterPlayerEventType.changedTrack,
+        parameters: <String, dynamic>{
+          "id": track.id,
+          "width": track.width,
+          "height": track.height,
+          "bitrate": track.bitrate,
+          "frameRate": track.frameRate,
+          "mimeType": track.mime,
+        }));
+    videoPlayerController!
+        .setTrackParameters(track.width, track.height, track.bitrate);
+    _videoPlayerTrack = track;
+  }
+
+  ///set native audio track
+  ///
+  void setNativeAudioTrack(BetterPlayerTrack track) {
+    if (videoPlayerController == null) {
+      throw StateError("The data source has not been initialized");
+    }
+    _postEvent(BetterPlayerEvent(BetterPlayerEventType.changedTrack,
+        parameters: <String, dynamic>{
+          "id": track.id,
+          "width": track.width,
+          "height": track.height,
+          "bitrate": track.bitrate,
+          "frameRate": track.frameRate,
+          "mimeType": track.mime,
+        }));
+    if (Platform.isIOS) {
+      videoPlayerController!.setAudioTrack(track.label, track.groupIndex ?? 0);
+    } else
+      videoPlayerController!.setAudioTrack(track.groupId, track.groupIndex);
+    _videoPlayerTrack = track;
+  }
+
+  ///set native video track constraint
+  ///
+  void setTrackConstraint({int? width, int? height, int? bitrate}) {
+    videoPlayerController!.setTrackConstraint(width, height, bitrate);
+  }
+
   ///Check if player can be played/paused automatically
   bool _isAutomaticPlayPauseHandled() {
     return !(_betterPlayerDataSource
@@ -1169,6 +1239,10 @@ class BetterPlayerController {
         break;
       case VideoEventType.bufferingEnd:
         _postEvent(BetterPlayerEvent(BetterPlayerEventType.bufferingEnd));
+        break;
+      case VideoEventType.trackChanged:
+        _postEvent(
+            BetterPlayerEvent(BetterPlayerEventType.nativeTracksChanged));
         break;
       case VideoEventType.videoAnalytics:
         if (event.metadata != null) {
