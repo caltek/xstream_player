@@ -6,60 +6,28 @@
 Advanced video player based on video_player and Chewie. It's solves many typical use cases and it's easy to run.
 
 <table>
-   <tr>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/1.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/2.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/3.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/4.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/5.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/6.png">
-      </td>
-   </tr>
-   <tr>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/7.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/8.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/9.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/10.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/11.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/12.png">
-      </td>
-   </tr>
-   <tr>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/13.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/14.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/15.png">
-      </td>
-      <td>
-         <img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/16.png">
-      </td>
-    </tr>	
+  <tr>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/1.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/2.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/3.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/4.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/5.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/6.png"></td>
+  </tr>
+  <tr>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/7.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/8.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/9.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/10.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/11.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/12.png"></td>
+  </tr>
+  <tr>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/13.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/14.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/15.png"></td>
+    <td><img width="250px" src="https://raw.githubusercontent.com/jhomlala/betterplayer/master/media/16.png"></td>
+  </tr>
 </table>
 
 ## Introduction

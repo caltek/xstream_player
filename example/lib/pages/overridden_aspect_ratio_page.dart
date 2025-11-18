@@ -3,9 +3,10 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class OverriddenAspectRatioPage extends StatefulWidget {
+  const OverriddenAspectRatioPage({super.key});
+
   @override
-  _OverriddenAspectRatioPageState createState() =>
-      _OverriddenAspectRatioPageState();
+  State<OverriddenAspectRatioPage> createState() => _OverriddenAspectRatioPageState();
 }
 
 class _OverriddenAspectRatioPageState extends State<OverriddenAspectRatioPage> {
@@ -13,16 +14,14 @@ class _OverriddenAspectRatioPageState extends State<OverriddenAspectRatioPage> {
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
-      aspectRatio: 16 / 9,
-      fit: BoxFit.fill,
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(aspectRatio: 16 / 9);
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+      BetterPlayerDataSourceType.network,
+      Constants.forBiggerBlazesUrl,
     );
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
-        BetterPlayerDataSourceType.network, Constants.forBiggerBlazesUrl);
     _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
     _betterPlayerController.setupDataSource(dataSource);
-    _betterPlayerController.setOverriddenAspectRatio(1.0);
+    _betterPlayerController.setOverriddenAspectRatio(1);
     super.initState();
   }
 

@@ -25,7 +25,7 @@ sealed class BetterPlayerHlsUtils {
       final List<List<dynamic>> list = await Future.wait([
         parseTracks(data, masterPlaylistUrl),
         parseSubtitles(data, masterPlaylistUrl),
-        parseLanguages(data, masterPlaylistUrl)
+        parseLanguages(data, masterPlaylistUrl),
       ]);
       tracks = list[0] as List<BetterPlayerAsmsTrack>;
       subtitles = list[1] as List<BetterPlayerAsmsSubtitle>;
@@ -125,7 +125,7 @@ sealed class BetterPlayerHlsUtils {
           // ignore: use_string_buffers
           realUrl += '${split[index]}/';
         }
-        if (segment.url?.startsWith('http') == true) {
+        if (segment.url?.startsWith('http') ?? false) {
           realUrl = segment.url!;
         } else {
           realUrl += segment.url!;
@@ -159,14 +159,15 @@ sealed class BetterPlayerHlsUtils {
       }
 
       return BetterPlayerAsmsSubtitle(
-          name: rendition.format.label,
-          language: rendition.format.language,
-          url: rendition.url.toString(),
-          realUrls: hlsSubtitlesUrls,
-          isSegmented: isSegmented,
-          segmentsTime: targetDuration,
-          segments: asmsSegments,
-          isDefault: isDefault);
+        name: rendition.format.label,
+        language: rendition.format.language,
+        url: rendition.url.toString(),
+        realUrls: hlsSubtitlesUrls,
+        isSegmented: isSegmented,
+        segmentsTime: targetDuration,
+        segments: asmsSegments,
+        isDefault: isDefault,
+      );
     } on Exception catch (exception) {
       BetterPlayerUtils.log('Failed to process subtitles playlist: $exception');
       return null;

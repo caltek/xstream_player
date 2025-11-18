@@ -7,27 +7,20 @@ import 'package:flutter/material.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class ReusableVideoListWidget extends StatefulWidget {
+  const ReusableVideoListWidget({super.key, this.videoListData, this.videoListController, this.canBuildVideo});
+
   final VideoListData? videoListData;
   final ReusableVideoListController? videoListController;
   final Function? canBuildVideo;
 
-  const ReusableVideoListWidget({
-    Key? key,
-    this.videoListData,
-    this.videoListController,
-    this.canBuildVideo,
-  }) : super(key: key);
-
   @override
-  _ReusableVideoListWidgetState createState() =>
-      _ReusableVideoListWidgetState();
+  State<ReusableVideoListWidget> createState() => _ReusableVideoListWidgetState();
 }
 
 class _ReusableVideoListWidgetState extends State<ReusableVideoListWidget> {
   VideoListData? get videoListData => widget.videoListData;
   BetterPlayerController? controller;
-  StreamController<BetterPlayerController?>
-      betterPlayerControllerStreamController = StreamController.broadcast();
+  StreamController<BetterPlayerController?> betterPlayerControllerStreamController = StreamController.broadcast();
   bool _initialized = false;
   Timer? _timer;
 
@@ -46,10 +39,12 @@ class _ReusableVideoListWidgetState extends State<ReusableVideoListWidget> {
     if (controller == null) {
       controller = widget.videoListController!.getBetterPlayerController();
       if (controller != null) {
-        controller!.setupDataSource(BetterPlayerDataSource.network(
+        controller!.setupDataSource(
+          BetterPlayerDataSource.network(
             videoListData!.videoUrl,
-            cacheConfiguration:
-                BetterPlayerCacheConfiguration(useCache: true)));
+            cacheConfiguration: const BetterPlayerCacheConfiguration(useCache: true),
+          ),
+        );
         if (!betterPlayerControllerStreamController.isClosed) {
           betterPlayerControllerStreamController.add(controller);
         }
@@ -77,7 +72,7 @@ class _ReusableVideoListWidgetState extends State<ReusableVideoListWidget> {
 
   void onPlayerEvent(BetterPlayerEvent event) {
     if (event.betterPlayerEventType == BetterPlayerEventType.progress) {
-      videoListData!.lastPosition = event.parameters!["progress"] as Duration?;
+      videoListData!.lastPosition = event.parameters!['progress'] as Duration?;
     }
     if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
       if (videoListData!.lastPosition != null) {
@@ -139,8 +134,7 @@ class _ReusableVideoListWidgetState extends State<ReusableVideoListWidget> {
                           color: Colors.black,
                           child: Center(
                             child: CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           ),
                         ),
@@ -150,8 +144,7 @@ class _ReusableVideoListWidgetState extends State<ReusableVideoListWidget> {
           ),
           Padding(
             padding: EdgeInsets.all(8),
-            child: Text(
-                "Horror: In Steven Spielberg's Jaws, a shark terrorizes a beach "
+            child: Text("Horror: In Steven Spielberg's Jaws, a shark terrorizes a beach "
                 "town. Plainspoken sheriff Roy Scheider, hippie shark "
                 "researcher Richard Dreyfuss, and a squirrely boat captain "
                 "set out to find the beast, but will they escape with their "

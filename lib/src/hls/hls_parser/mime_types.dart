@@ -1,6 +1,8 @@
-import 'util.dart';
+import 'package:xstream_player/src/hls/hls_parser/util.dart';
 
 class MimeTypes {
+  const MimeTypes._();
+
   static const String baseTypeVideo = 'video';
   static const String baseTypeAudio = 'audio';
   static const String baseTypeText = 'text';
@@ -139,9 +141,13 @@ class MimeTypes {
     if (codec.startsWith('dvav') ||
         codec.startsWith('dva1') ||
         codec.startsWith('dvhe') ||
-        codec.startsWith('dvh1')) return MimeTypes.videoDolbyVision;
+        codec.startsWith('dvh1')) {
+      return MimeTypes.videoDolbyVision;
+    }
 
-    if (codec.startsWith('av01')) return MimeTypes.videoAv1;
+    if (codec.startsWith('av01')) {
+      return MimeTypes.videoAv1;
+    }
 
     if (codec.startsWith('vp9') || codec.startsWith('vp09')) {
       return MimeTypes.videoVp9;
@@ -175,7 +181,9 @@ class MimeTypes {
       return MimeTypes.audioEAc3;
     }
 
-    if (codec.startsWith('ec+3')) return MimeTypes.audioEAc3Joc;
+    if (codec.startsWith('ec+3')) {
+      return MimeTypes.audioEAc3Joc;
+    }
 
     if (codec.startsWith('ac-4') || codec.startsWith('dac4')) {
       return MimeTypes.audioAc4;
@@ -188,9 +196,15 @@ class MimeTypes {
     if (codec.startsWith('dtsh') || codec.startsWith('dtsl')) {
       return MimeTypes.audioDtsHd;
     }
-    if (codec.startsWith('opus')) return MimeTypes.audioOpus;
-    if (codec.startsWith('vorbis')) return MimeTypes.audioVorbis;
-    if (codec.startsWith('flac')) return MimeTypes.audioFlac;
+    if (codec.startsWith('opus')) {
+      return MimeTypes.audioOpus;
+    }
+    if (codec.startsWith('vorbis')) {
+      return MimeTypes.audioVorbis;
+    }
+    if (codec.startsWith('flac')) {
+      return MimeTypes.audioFlac;
+    }
     return getCustomMimeTypeForCodec(codec);
   }
 
@@ -205,10 +219,16 @@ class MimeTypes {
   }
 
   static int getTrackType(String? mimeType) {
-    if (mimeType?.isNotEmpty == false) return Util.trackTypeUnknown;
+    if (mimeType?.isNotEmpty == false) {
+      return Util.trackTypeUnknown;
+    }
 
-    if (isAudio(mimeType)) return Util.trackTypeAudio;
-    if (isVideo(mimeType)) return Util.trackTypeVideo;
+    if (isAudio(mimeType)) {
+      return Util.trackTypeAudio;
+    }
+    if (isVideo(mimeType)) {
+      return Util.trackTypeVideo;
+    }
     if (isText(mimeType) ||
         applicationCea608 == mimeType ||
         applicationCea708 == mimeType ||
@@ -235,16 +255,22 @@ class MimeTypes {
 
   static int getTrackTypeForCustomMimeType(String? mimeType) {
     for (final it in _customMimeTypes) {
-      if (it.mimeType == mimeType) return it.trackType;
+      if (it.mimeType == mimeType) {
+        return it.trackType;
+      }
     }
 
     return Util.trackTypeUnknown;
   }
 
   static String? getTopLevelType(String? mimeType) {
-    if (mimeType == null) return null;
+    if (mimeType == null) {
+      return null;
+    }
     final int indexOfSlash = mimeType.indexOf('/');
-    if (indexOfSlash == -1) return null;
+    if (indexOfSlash == -1) {
+      return null;
+    }
     return mimeType.substring(0, indexOfSlash);
   }
 
@@ -257,17 +283,15 @@ class MimeTypes {
   static bool isText(String? mimeType) =>
       baseTypeText == getTopLevelType(mimeType);
 
-  static int getTrackTypeOfCodec(String codec) {
-    return getTrackType(getMediaMimeType(codec));
-  }
+  static int getTrackTypeOfCodec(String codec) =>
+      getTrackType(getMediaMimeType(codec));
 }
 
 class CustomMimeType {
-  CustomMimeType({
-    required this.mimeType,
-    required this.codecPrefix,
-    required this.trackType,
-  });
+  CustomMimeType(
+      {required this.mimeType,
+      required this.codecPrefix,
+      required this.trackType});
 
   final String mimeType;
   final String codecPrefix;

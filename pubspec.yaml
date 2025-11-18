@@ -7,8 +7,8 @@ repository: https://github.com/caltek/xstream_player
 issue_tracker: https://github.com/caltek/xstream_player/issues
 
 environment:
-  sdk: '>=3.1.0 <4.0.0'
-  flutter: ">=3.13.0"
+  sdk: ">=3.9.0 <4.0.0"
+  flutter: ">=3.35.0"
 
 dependencies:
   flutter:
@@ -26,8 +26,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  lint: ^2.3.0
-  flutter_lints: ^3.0.2
+  analysis_lints: ^1.0.5
 
 flutter:
   plugin:

@@ -3,8 +3,10 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class HlsAudioPage extends StatefulWidget {
+  const HlsAudioPage({super.key});
+
   @override
-  _HlsAudioPageState createState() => _HlsAudioPageState();
+  State<HlsAudioPage> createState() => _HlsAudioPageState();
 }
 
 class _HlsAudioPageState extends State<HlsAudioPage> {
@@ -12,12 +14,11 @@ class _HlsAudioPageState extends State<HlsAudioPage> {
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
       aspectRatio: 16 / 9,
       fit: BoxFit.contain,
     );
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.network,
       Constants.elephantDreamStreamUrl,
     );

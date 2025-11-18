@@ -3,8 +3,10 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class ResolutionsPage extends StatefulWidget {
+  const ResolutionsPage({super.key});
+
   @override
-  _ResolutionsPageState createState() => _ResolutionsPageState();
+  State<ResolutionsPage> createState() => _ResolutionsPageState();
 }
 
 class _ResolutionsPageState extends State<ResolutionsPage> {
@@ -12,12 +14,11 @@ class _ResolutionsPageState extends State<ResolutionsPage> {
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
       aspectRatio: 16 / 9,
       fit: BoxFit.contain,
     );
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.network,
       Constants.exampleResolutionsUrls.values.first,
       resolutions: Constants.exampleResolutionsUrls,

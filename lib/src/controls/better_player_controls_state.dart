@@ -23,13 +23,12 @@ abstract class BetterPlayerControlsState<T extends StatefulWidget>
 
   void cancelAndRestartTimer();
 
-  bool isVideoFinished(VideoPlayerValue? videoPlayerValue) {
-    return videoPlayerValue?.position != null &&
-        videoPlayerValue?.duration != null &&
-        videoPlayerValue!.position.inMilliseconds != 0 &&
-        videoPlayerValue.duration!.inMilliseconds != 0 &&
-        videoPlayerValue.position >= videoPlayerValue.duration!;
-  }
+  bool isVideoFinished(VideoPlayerValue? videoPlayerValue) =>
+      videoPlayerValue?.position != null &&
+      videoPlayerValue?.duration != null &&
+      videoPlayerValue!.position.inMilliseconds != 0 &&
+      videoPlayerValue.duration!.inMilliseconds != 0 &&
+      videoPlayerValue.position >= videoPlayerValue.duration!;
 
   void skipBack() {
     if (latestValue != null) {
@@ -71,25 +70,31 @@ abstract class BetterPlayerControlsState<T extends StatefulWidget>
           children: [
             if (betterPlayerControlsConfiguration.enablePlaybackSpeed)
               _buildMoreOptionsListRow(
-                  betterPlayerControlsConfiguration.playbackSpeedIcon,
-                  translations.overflowMenuPlaybackSpeed, () {
-                Navigator.of(context).pop();
-                _showSpeedChooserWidget();
-              }),
+                betterPlayerControlsConfiguration.playbackSpeedIcon,
+                translations.overflowMenuPlaybackSpeed,
+                () {
+                  Navigator.of(context).pop();
+                  _showSpeedChooserWidget();
+                },
+              ),
             if (betterPlayerControlsConfiguration.enableSubtitles)
               _buildMoreOptionsListRow(
-                  betterPlayerControlsConfiguration.subtitlesIcon,
-                  translations.overflowMenuSubtitles, () {
-                Navigator.of(context).pop();
-                _showSubtitlesSelectionWidget();
-              }),
+                betterPlayerControlsConfiguration.subtitlesIcon,
+                translations.overflowMenuSubtitles,
+                () {
+                  Navigator.of(context).pop();
+                  _showSubtitlesSelectionWidget();
+                },
+              ),
             if (betterPlayerControlsConfiguration.enableQualities)
               _buildMoreOptionsListRow(
-                  betterPlayerControlsConfiguration.qualitiesIcon,
-                  translations.overflowMenuQuality, () {
-                Navigator.of(context).pop();
-                _showQualitiesSelectionWidget();
-              }),
+                betterPlayerControlsConfiguration.qualitiesIcon,
+                translations.overflowMenuQuality,
+                () {
+                  Navigator.of(context).pop();
+                  _showQualitiesSelectionWidget();
+                },
+              ),
             if (betterPlayerControlsConfiguration.enableAudioTracks)
               _buildMoreOptionsListRow(
                   betterPlayerControlsConfiguration.audioTracksIcon,
@@ -144,11 +149,11 @@ abstract class BetterPlayerControlsState<T extends StatefulWidget>
       _buildSpeedRow(0.25),
       _buildSpeedRow(0.5),
       _buildSpeedRow(0.75),
-      _buildSpeedRow(1.0),
+      _buildSpeedRow(1),
       _buildSpeedRow(1.25),
       _buildSpeedRow(1.5),
       _buildSpeedRow(1.75),
-      _buildSpeedRow(2.0),
+      _buildSpeedRow(2),
     ]);
   }
 
@@ -194,7 +199,7 @@ abstract class BetterPlayerControlsState<T extends StatefulWidget>
       final Duration position = latestValue.position;
 
       Duration? bufferedEndPosition;
-      if (latestValue.buffered.isNotEmpty == true) {
+      if (latestValue.buffered.isNotEmpty) {
         bufferedEndPosition = latestValue.buffered.last.end;
       }
 
@@ -222,8 +227,7 @@ abstract class BetterPlayerControlsState<T extends StatefulWidget>
           type: BetterPlayerSubtitlesSourceType.none));
     }
 
-    _showModalBottomSheet(
-        subtitles.map((source) => _buildSubtitlesSourceRow(source)).toList());
+    _showModalBottomSheet(subtitles.map(_buildSubtitlesSourceRow).toList());
   }
 
   Widget _buildSubtitlesSourceRow(BetterPlayerSubtitlesSource subtitlesSource) {
@@ -365,10 +369,7 @@ abstract class BetterPlayerControlsState<T extends StatefulWidget>
                       betterPlayerControlsConfiguration.overflowModalTextColor,
                 )),
             const SizedBox(width: 16),
-            Text(
-              name,
-              style: _getOverflowMenuElementTextStyle(isSelected),
-            ),
+            Text(name, style: _getOverflowMenuElementTextStyle(isSelected)),
           ],
         ),
       ),

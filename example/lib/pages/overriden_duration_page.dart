@@ -3,8 +3,10 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class OverriddenDurationPage extends StatefulWidget {
+  const OverriddenDurationPage({super.key});
+
   @override
-  _OverriddenDurationPageState createState() => _OverriddenDurationPageState();
+  State<OverriddenDurationPage> createState() => _OverriddenDurationPageState();
 }
 
 class _OverriddenDurationPageState extends State<OverriddenDurationPage> {
@@ -12,24 +14,22 @@ class _OverriddenDurationPageState extends State<OverriddenDurationPage> {
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
       aspectRatio: 16 / 9,
       fit: BoxFit.contain,
-      handleLifecycle: true,
     );
     _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
     _setupDataSource();
     super.initState();
   }
 
-  void _setupDataSource() async {
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+  Future<void> _setupDataSource() async {
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.network,
       Constants.elephantDreamVideoUrl,
 
       ///Play only 10 seconds of this video.
-      overriddenDuration: Duration(seconds: 10),
+      overriddenDuration: const Duration(seconds: 10),
     );
     _betterPlayerController.setupDataSource(dataSource);
   }

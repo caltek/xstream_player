@@ -3,8 +3,10 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class NotificationPlayerPage extends StatefulWidget {
+  const NotificationPlayerPage({super.key});
+
   @override
-  _NotificationPlayerPageState createState() => _NotificationPlayerPageState();
+  State<NotificationPlayerPage> createState() => _NotificationPlayerPageState();
 }
 
 class _NotificationPlayerPageState extends State<NotificationPlayerPage> {
@@ -12,26 +14,24 @@ class _NotificationPlayerPageState extends State<NotificationPlayerPage> {
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
       aspectRatio: 16 / 9,
       fit: BoxFit.contain,
-      handleLifecycle: true,
     );
     _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
     _setupDataSource();
     super.initState();
   }
 
-  void _setupDataSource() async {
+  Future<void> _setupDataSource() async {
     // String imageUrl = await Utils.getFileUrl(Constants.logo);
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.network,
       Constants.elephantDreamVideoUrl,
       notificationConfiguration: BetterPlayerNotificationConfiguration(
         showNotification: true,
-        title: "Elephant dream",
-        author: "Some author",
+        title: 'Elephant dream',
+        author: 'Some author',
         imageUrl: Constants.catImageUrl,
       ),
     );

@@ -1,10 +1,23 @@
 import 'package:xstream_player/src/asms/better_player_asms_subtitle_segment.dart';
 
-import 'better_player_subtitles_source_type.dart';
+import 'package:xstream_player/xstream_player.dart'
+    show BetterPlayerSubtitlesSourceType;
 
 ///Representation of subtitles source. Used to define subtitles in Better
 /// Player.
 class BetterPlayerSubtitlesSource {
+  BetterPlayerSubtitlesSource({
+    this.type,
+    this.name = 'Default subtitles',
+    this.urls,
+    this.content,
+    this.selectedByDefault,
+    this.headers,
+    this.asmsIsSegmented,
+    this.asmsSegmentsTime,
+    this.asmsSegments,
+  });
+
   ///Source type
   final BetterPlayerSubtitlesSourceType? type;
 
@@ -36,22 +49,10 @@ class BetterPlayerSubtitlesSource {
   ///configured manually.
   final List<BetterPlayerAsmsSubtitleSegment>? asmsSegments;
 
-  BetterPlayerSubtitlesSource({
-    this.type,
-    this.name = "Default subtitles",
-    this.urls,
-    this.content,
-    this.selectedByDefault,
-    this.headers,
-    this.asmsIsSegmented,
-    this.asmsSegmentsTime,
-    this.asmsSegments,
-  });
-
   ///Creates list with only one subtitles
   static List<BetterPlayerSubtitlesSource> single({
     BetterPlayerSubtitlesSourceType? type,
-    String name = "Default subtitles",
+    String name = 'Default subtitles',
     String? url,
     String? content,
     bool? selectedByDefault,
@@ -65,6 +66,6 @@ class BetterPlayerSubtitlesSource {
           content: content,
           selectedByDefault: selectedByDefault,
           headers: headers,
-        )
+        ),
       ];
 }

@@ -35,7 +35,7 @@ class BetterPlayerSubtitlesFactory {
       }
       return subtitles;
     } on Exception catch (exception) {
-      BetterPlayerUtils.log("Failed to read subtitles from file: $exception");
+      BetterPlayerUtils.log('Failed to read subtitles from file: $exception');
     }
     return [];
   }
@@ -60,7 +60,7 @@ class BetterPlayerSubtitlesFactory {
       }
       client.close();
 
-      BetterPlayerUtils.log("Parsed total subtitles: ${subtitles.length}");
+      BetterPlayerUtils.log('Parsed total subtitles: ${subtitles.length}');
       return subtitles;
     } on Exception catch (exception) {
       BetterPlayerUtils.log(
@@ -74,7 +74,7 @@ class BetterPlayerSubtitlesFactory {
     try {
       return _parseString(source.content!);
     } on Exception catch (exception) {
-      BetterPlayerUtils.log("Failed to read subtitles from memory: $exception");
+      BetterPlayerUtils.log('Failed to read subtitles from memory: $exception');
     }
     return [];
   }
@@ -92,7 +92,7 @@ class BetterPlayerSubtitlesFactory {
 
     final List<BetterPlayerSubtitle> subtitlesObj = [];
 
-    final bool isWebVTT = components.contains("WEBVTT");
+    final bool isWebVTT = components.contains('WEBVTT');
     for (final component in components) {
       if (component.isEmpty) {
         continue;

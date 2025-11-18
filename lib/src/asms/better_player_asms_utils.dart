@@ -8,8 +8,10 @@ import 'better_player_asms_data_holder.dart';
 
 ///Base helper class for ASMS parsing.
 class BetterPlayerAsmsUtils {
-  static const String _hlsExtension = "m3u8";
-  static const String _dashExtension = "mpd";
+  const BetterPlayerAsmsUtils._();
+
+  static const String _hlsExtension = 'm3u8';
+  static const String _dashExtension = 'mpd';
 
   static final HttpClient _httpClient = HttpClient()
     ..connectionTimeout = const Duration(seconds: 5);
@@ -50,14 +52,14 @@ class BetterPlayerAsmsUtils {
       }
 
       final response = await request.close();
-      var data = "";
+      var data = '';
       await response.transform(const Utf8Decoder()).listen((content) {
-        data += content.toString();
+        data += content;
       }).asFuture<String?>();
 
       return data;
     } on Exception catch (exception) {
-      BetterPlayerUtils.log("GetDataFromUrl failed: $exception");
+      BetterPlayerUtils.log('GetDataFromUrl failed: $exception');
       return null;
     }
   }

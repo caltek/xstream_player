@@ -3,8 +3,10 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class ControllerControlsPage extends StatefulWidget {
+  const ControllerControlsPage({super.key});
+
   @override
-  _ControllerControlsPageState createState() => _ControllerControlsPageState();
+  State<ControllerControlsPage> createState() => _ControllerControlsPageState();
 }
 
 class _ControllerControlsPageState extends State<ControllerControlsPage> {
@@ -12,13 +14,14 @@ class _ControllerControlsPageState extends State<ControllerControlsPage> {
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
       aspectRatio: 16 / 9,
       fit: BoxFit.contain,
     );
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
-        BetterPlayerDataSourceType.network, Constants.elephantDreamVideoUrl);
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+      BetterPlayerDataSourceType.network,
+      Constants.elephantDreamVideoUrl,
+    );
     _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
     _betterPlayerController.setupDataSource(dataSource);
     super.initState();
@@ -47,11 +50,8 @@ class _ControllerControlsPageState extends State<ControllerControlsPage> {
           ),
           Wrap(
             children: [
-              TextButton(
-                  child: Text("Play"), onPressed: _betterPlayerController.play),
-              TextButton(
-                  child: Text("Pause"),
-                  onPressed: _betterPlayerController.pause),
+              TextButton(child: Text("Play"), onPressed: _betterPlayerController.play),
+              TextButton(child: Text("Pause"), onPressed: _betterPlayerController.pause),
               TextButton(
                 child: Text("Hide controls"),
                 onPressed: () {

@@ -3,8 +3,10 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class CachePage extends StatefulWidget {
+  const CachePage({super.key});
+
   @override
-  _CachePageState createState() => _CachePageState();
+  State<CachePage> createState() => _CachePageState();
 }
 
 class _CachePageState extends State<CachePage> {
@@ -13,22 +15,19 @@ class _CachePageState extends State<CachePage> {
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
       aspectRatio: 16 / 9,
       fit: BoxFit.contain,
     );
     _betterPlayerDataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.network,
       Constants.phantomVideoUrl,
-      cacheConfiguration: BetterPlayerCacheConfiguration(
+      cacheConfiguration: const BetterPlayerCacheConfiguration(
         useCache: true,
         preCacheSize: 10 * 1024 * 1024,
-        maxCacheSize: 10 * 1024 * 1024,
-        maxCacheFileSize: 10 * 1024 * 1024,
 
         ///Android only option to use cached video between app sessions
-        key: "testCacheKey",
+        key: 'testCacheKey',
       ),
     );
     _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);

@@ -14,8 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 final VideoPlayerPlatform _videoPlayerPlatform = VideoPlayerPlatform.instance
-// This will clear all open videos on the platform when a full restart is
-// performed.
+  // This will clear all open videos on the platform when a full restart is
+  // performed.
   ..init();
 
 /// The duration, current position, buffering state, error state and settings
@@ -26,7 +26,7 @@ class VideoPlayerValue extends Equatable {
   VideoPlayerValue({
     required this.duration,
     this.size,
-    this.position = const Duration(),
+    this.position = Duration.zero,
     this.absolutePosition,
     this.buffered = const <DurationRange>[],
     this.tracks,
@@ -105,11 +105,11 @@ class VideoPlayerValue extends Equatable {
   /// size is null or the aspect ratio would be less than or equal to 0.0.
   double get aspectRatio {
     if (size == null) {
-      return 1.0;
+      return 1;
     }
     final double aspectRatio = size!.width / size!.height;
     if (aspectRatio <= 0) {
-      return 1.0;
+      return 1;
     }
     return aspectRatio;
   }
@@ -193,8 +193,6 @@ class VideoPlayerValue extends Equatable {
 ///
 /// After [dispose] all further calls are ignored.
 class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
-  final BetterPlayerBufferingConfiguration bufferingConfiguration;
-
   /// Constructs a [VideoPlayerController] and creates video controller on platform side.
   VideoPlayerController({
     this.bufferingConfiguration = const BetterPlayerBufferingConfiguration(),
@@ -204,6 +202,8 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       _create();
     }
   }
+
+  final BetterPlayerBufferingConfiguration bufferingConfiguration;
 
   final StreamController<VideoEvent> videoEventStreamController =
       StreamController.broadcast();
@@ -240,44 +240,31 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       videoEventStreamController.add(event);
       switch (event.eventType) {
         case VideoEventType.initialized:
-          value = value.copyWith(
-            duration: event.duration,
-            size: event.size,
-          );
+          value = value.copyWith(duration: event.duration, size: event.size);
           _initializingCompleter.complete(null);
           _applyPlayPause();
-          break;
         case VideoEventType.completed:
           value = value.copyWith(isPlaying: false, position: value.duration);
           _timer?.cancel();
-          break;
         case VideoEventType.bufferingUpdate:
           value = value.copyWith(buffered: event.buffered);
-          break;
         case VideoEventType.bufferingStart:
           value = value.copyWith(isBuffering: true);
-          break;
         case VideoEventType.bufferingEnd:
           if (value.isBuffering) {
             value = value.copyWith(isBuffering: false);
           }
-          break;
 
         case VideoEventType.play:
           play();
-          break;
         case VideoEventType.pause:
           pause();
-          break;
         case VideoEventType.seek:
           seekTo(event.position);
-          break;
         case VideoEventType.pipStart:
           value = value.copyWith(isPip: true);
-          break;
         case VideoEventType.pipStop:
           value = value.copyWith(isPip: false);
-          break;
         case VideoEventType.unknown:
           break;
         case VideoEventType.isPlayingChanged:
@@ -443,7 +430,9 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       volume: value.volume,
     );
 
-    if (!_creatingCompleter.isCompleted) await _creatingCompleter.future;
+    if (!_creatingCompleter.isCompleted) {
+      await _creatingCompleter.future;
+    }
 
     _initializingCompleter = Completer<void>();
 
@@ -461,7 +450,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       _timer?.cancel();
       await _eventSubscription?.cancel();
       await _videoPlayerPlatform.dispose(_textureId);
-      videoEventStreamController.close();
+      await videoEventStreamController.close();
     }
     _isDisposed = true;
     super.dispose();
@@ -583,8 +572,8 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
     Duration? positionToSeek = position;
     if (position! > value.duration!) {
       positionToSeek = value.duration;
-    } else if (position < const Duration()) {
-      positionToSeek = const Duration();
+    } else if (position < Duration.zero) {
+      positionToSeek = Duration.zero;
     }
     _seekPosition = positionToSeek;
 
@@ -592,9 +581,9 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
     _updatePosition(position);
 
     if (isPlaying) {
-      play();
+      await play();
     } else {
-      pause();
+      await pause();
     }
   }
 
@@ -677,30 +666,26 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
     _videoPlayerPlatform.setMixWithOthers(_textureId, mixWithOthers);
   }
 
-  static Future clearCache() async {
-    return _videoPlayerPlatform.clearCache();
-  }
+  static Future<void> clearCache() async => _videoPlayerPlatform.clearCache();
 
-  static Future preCache(DataSource dataSource, int preCacheSize) async {
-    return _videoPlayerPlatform.preCache(dataSource, preCacheSize);
-  }
+  static Future<void> preCache(DataSource dataSource, int preCacheSize) async =>
+      _videoPlayerPlatform.preCache(dataSource, preCacheSize);
 
-  static Future stopPreCache(String url, String? cacheKey) async {
-    return _videoPlayerPlatform.stopPreCache(url, cacheKey);
-  }
+  static Future<void> stopPreCache(String url, String? cacheKey) async =>
+      _videoPlayerPlatform.stopPreCache(url, cacheKey);
 }
 
 /// Widget that displays the video controlled by [controller].
 class VideoPlayer extends StatefulWidget {
   /// Uses the given [controller] for all video rendered in this widget.
-  const VideoPlayer(this.controller, {Key? key}) : super(key: key);
+  const VideoPlayer(this.controller, {super.key});
 
   /// The [VideoPlayerController] responsible for the video being rendered in
   /// this widget.
   final VideoPlayerController? controller;
 
   @override
-  _VideoPlayerState createState() => _VideoPlayerState();
+  State<VideoPlayer> createState() => _VideoPlayerState();
 }
 
 class _VideoPlayerState extends State<VideoPlayer> {
@@ -790,10 +775,7 @@ class VideoProgressColors {
 }
 
 class _VideoScrubber extends StatefulWidget {
-  const _VideoScrubber({
-    required this.child,
-    required this.controller,
-  });
+  const _VideoScrubber({required this.child, required this.controller});
 
   final Widget child;
   final VideoPlayerController controller;
@@ -871,10 +853,9 @@ class VideoProgressIndicator extends StatefulWidget {
     this.controller, {
     VideoProgressColors? colors,
     this.allowScrubbing,
-    this.padding = const EdgeInsets.only(top: 5.0),
-    Key? key,
-  })  : colors = colors ?? VideoProgressColors(),
-        super(key: key);
+    this.padding = const EdgeInsets.only(top: 5),
+    super.key,
+  }) : colors = colors ?? VideoProgressColors();
 
   /// The [VideoPlayerController] that actually associates a video with this
   /// widget.
@@ -898,7 +879,7 @@ class VideoProgressIndicator extends StatefulWidget {
   final EdgeInsets padding;
 
   @override
-  _VideoProgressIndicatorState createState() => _VideoProgressIndicatorState();
+  State<VideoProgressIndicator> createState() => _VideoProgressIndicatorState();
 }
 
 class _VideoProgressIndicatorState extends State<VideoProgressIndicator> {
@@ -1003,7 +984,7 @@ class ClosedCaption extends StatelessWidget {
   /// [VideoPlayerValue.caption].
   ///
   /// If [text] is null, nothing will be displayed.
-  const ClosedCaption({Key? key, this.text, this.textStyle}) : super(key: key);
+  const ClosedCaption({super.key, this.text, this.textStyle});
 
   /// The text that will be shown in the closed caption, or null if no caption
   /// should be shown.
@@ -1030,14 +1011,14 @@ class ClosedCaption extends StatelessWidget {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 24.0),
+        padding: const EdgeInsets.only(bottom: 24),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: const Color(0xB8000000),
             borderRadius: BorderRadius.circular(2.0),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2.0),
+            padding: const EdgeInsets.symmetric(horizontal: 2),
             child: Text(text!, style: effectiveTextStyle),
           ),
         ),

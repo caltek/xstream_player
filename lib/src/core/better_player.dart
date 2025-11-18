@@ -1,3 +1,5 @@
+// ignore_for_file: discarded_futures
+
 import 'dart:async';
 import 'package:xstream_player/xstream_player.dart';
 import 'package:xstream_player/src/configuration/better_player_controller_event.dart';
@@ -10,7 +12,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 ///Widget which uses provided controller to render video player.
 class BetterPlayer extends StatefulWidget {
-  const BetterPlayer({Key? key, required this.controller}) : super(key: key);
+  const BetterPlayer({super.key, required this.controller});
 
   factory BetterPlayer.network(
     String url, {
@@ -39,9 +41,7 @@ class BetterPlayer extends StatefulWidget {
   final BetterPlayerController controller;
 
   @override
-  _BetterPlayerState createState() {
-    return _BetterPlayerState();
-  }
+  State<BetterPlayer> createState() => _BetterPlayerState();
 }
 
 class _BetterPlayerState extends State<BetterPlayer>
@@ -58,7 +58,7 @@ class _BetterPlayerState extends State<BetterPlayer>
   bool _initialized = false;
 
   ///Subscription for controller events
-  StreamSubscription? _controllerEventSubscription;
+  StreamSubscription<dynamic>? _controllerEventSubscription;
 
   @override
   void initState() {
@@ -84,7 +84,7 @@ class _BetterPlayerState extends State<BetterPlayer>
         widget.controller.controllerEventStream.listen(onControllerEvent);
 
     //Default locale
-    var locale = const Locale("en", "US");
+    var locale = const Locale('en', 'US');
     try {
       if (mounted) {
         final contextLocale = Localizations.localeOf(context);
@@ -132,13 +132,10 @@ class _BetterPlayerState extends State<BetterPlayer>
     switch (event) {
       case BetterPlayerControllerEvent.openFullscreen:
         onFullScreenChanged();
-        break;
       case BetterPlayerControllerEvent.hideFullscreen:
         onFullScreenChanged();
-        break;
       default:
         setState(() {});
-        break;
     }
   }
 
@@ -244,16 +241,18 @@ class _BetterPlayerState extends State<BetterPlayer>
     }
 
     if (!_betterPlayerConfiguration.allowedScreenSleep) {
-      WakelockPlus.enable();
+      await WakelockPlus.enable();
     }
 
-    await Navigator.of(context, rootNavigator: true).push(route);
-    _isFullScreen = false;
-    widget.controller.exitFullScreen();
+    if (context.mounted) {
+      await Navigator.of(context, rootNavigator: true).push(route);
+      _isFullScreen = false;
+      widget.controller.backFromFullScreen();
+    }
 
     // The wakelock plugins checks whether it needs to perform an action internally,
     // so we do not need to check Wakelock.isEnabled.
-    WakelockPlus.disable();
+    await WakelockPlus.disable();
 
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: _betterPlayerConfiguration.systemOverlaysAfterFullScreen);

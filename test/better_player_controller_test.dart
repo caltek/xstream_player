@@ -87,35 +87,32 @@ void main() {
         },
       );
 
-      test(
-        "seekTo should send event",
-        () async {
-          final BetterPlayerController betterPlayerController =
-              BetterPlayerTestUtils.setupBetterPlayerMockController();
-          final videoPlayerController =
-              BetterPlayerTestUtils.setupMockVideoPlayerControler();
-          videoPlayerController.setDuration(const Duration(seconds: 100));
-          betterPlayerController.videoPlayerController = videoPlayerController;
+      test("seekTo should send event", () async {
+        final BetterPlayerController betterPlayerController =
+            BetterPlayerTestUtils.setupBetterPlayerMockController();
+        final videoPlayerController =
+            BetterPlayerTestUtils.setupMockVideoPlayerControler();
+        videoPlayerController.setDuration(const Duration(seconds: 100));
+        betterPlayerController.videoPlayerController = videoPlayerController;
 
-          int seekEventCalls = 0;
-          int finishEventCalls = 0;
-          betterPlayerController.addEventsListener((event) {
-            if (event.betterPlayerEventType == BetterPlayerEventType.seekTo) {
-              seekEventCalls += 1;
-            }
-            if (event.betterPlayerEventType == BetterPlayerEventType.finished) {
-              finishEventCalls += 1;
-            }
-          });
-          betterPlayerController.seekTo(const Duration(seconds: 5));
-          await Future.delayed(const Duration(milliseconds: 100), () {});
-          expect(seekEventCalls, 1);
-          betterPlayerController.seekTo(const Duration(seconds: 150));
-          await Future.delayed(const Duration(milliseconds: 100), () {});
-          expect(seekEventCalls, 2);
-          expect(finishEventCalls, 1);
-        },
-      );
+        int seekEventCalls = 0;
+        int finishEventCalls = 0;
+        betterPlayerController.addEventsListener((event) {
+          if (event.betterPlayerEventType == BetterPlayerEventType.seekTo) {
+            seekEventCalls += 1;
+          }
+          if (event.betterPlayerEventType == BetterPlayerEventType.finished) {
+            finishEventCalls += 1;
+          }
+        });
+        betterPlayerController.seekTo(const Duration(seconds: 5));
+        await Future.delayed(const Duration(milliseconds: 100), () {});
+        expect(seekEventCalls, 1);
+        betterPlayerController.seekTo(const Duration(seconds: 150));
+        await Future.delayed(const Duration(milliseconds: 100), () {});
+        expect(seekEventCalls, 2);
+        expect(finishEventCalls, 1);
+      });
 
       test("full screen and auto play should work", () async {
         final BetterPlayerMockController betterPlayerMockController =
@@ -187,7 +184,7 @@ void main() {
         expect(mockVideoPlayerController.isLoopingState, false);
       });
 
-      test("setControlsVisibility updates controlVisiblityStream", () async {
+      test('setControlsVisibility updates controlVisiblityStream', () async {
         final BetterPlayerMockController betterPlayerMockController =
             BetterPlayerTestUtils.setupBetterPlayerMockController();
         var showCalls = 0;
@@ -209,7 +206,7 @@ void main() {
         expect(showCalls, 2);
       });
 
-      test("setControlsEnabled updates values correctly", () async {
+      test('setControlsEnabled updates values correctly', () async {
         final BetterPlayerMockController betterPlayerMockController =
             BetterPlayerTestUtils.setupBetterPlayerMockController();
         var hideCalls = 0;
@@ -248,7 +245,7 @@ void main() {
         expect(controlsHiddenEventCount, 1);
       });
 
-      test("postEvent sends events to listeners", () async {
+      test('postEvent sends events to listeners', () async {
         final BetterPlayerMockController betterPlayerMockController =
             BetterPlayerTestUtils.setupBetterPlayerMockController();
 
@@ -273,7 +270,7 @@ void main() {
         expect(secondEventCounter, 3);
       });
 
-      test("addEventsListener update list of event listener", () async {
+      test('addEventsListener update list of event listener', () async {
         final BetterPlayerMockController betterPlayerMockController =
             BetterPlayerTestUtils.setupBetterPlayerMockController();
         betterPlayerMockController.addEventsListener((event) {});
@@ -283,7 +280,7 @@ void main() {
 
       void dummyEventListener(BetterPlayerEvent event) {}
 
-      test("removeEventsListener update list of event listener", () async {
+      test('removeEventsListener update list of event listener', () async {
         final BetterPlayerMockController betterPlayerMockController =
             BetterPlayerTestUtils.setupBetterPlayerMockController();
         betterPlayerMockController.addEventsListener(dummyEventListener);
@@ -307,31 +304,27 @@ void main() {
         expect(mockVideoPlayerController.volume, 0.5);
       });
 
-      test(
-        "setVolume should send event",
-        () async {
-          final BetterPlayerController betterPlayerMockController =
-              BetterPlayerTestUtils.setupBetterPlayerMockController();
-          final videoPlayerController =
-              BetterPlayerTestUtils.setupMockVideoPlayerControler();
-          betterPlayerMockController.videoPlayerController =
-              videoPlayerController;
+      test("setVolume should send event", () async {
+        final BetterPlayerController betterPlayerMockController =
+            BetterPlayerTestUtils.setupBetterPlayerMockController();
+        final videoPlayerController =
+            BetterPlayerTestUtils.setupMockVideoPlayerControler();
+        betterPlayerMockController.videoPlayerController =
+            videoPlayerController;
 
-          int setVolumeCalls = 0;
-          betterPlayerMockController.addEventsListener((event) {
-            if (event.betterPlayerEventType ==
-                BetterPlayerEventType.setVolume) {
-              setVolumeCalls += 1;
-            }
-          });
-          betterPlayerMockController.setVolume(1.0);
-          await Future.delayed(const Duration(milliseconds: 100), () {});
-          expect(setVolumeCalls, 1);
-          betterPlayerMockController.setVolume(1.0);
-          await Future.delayed(const Duration(milliseconds: 100), () {});
-          expect(setVolumeCalls, 2);
-        },
-      );
+        int setVolumeCalls = 0;
+        betterPlayerMockController.addEventsListener((event) {
+          if (event.betterPlayerEventType == BetterPlayerEventType.setVolume) {
+            setVolumeCalls += 1;
+          }
+        });
+        betterPlayerMockController.setVolume(1);
+        await Future.delayed(const Duration(milliseconds: 100), () {});
+        expect(setVolumeCalls, 1);
+        betterPlayerMockController.setVolume(1);
+        await Future.delayed(const Duration(milliseconds: 100), () {});
+        expect(setVolumeCalls, 2);
+      });
 
       test("setSpeed changes speed", () async {
         final mockVideoPlayerController = MockVideoPlayerController();
@@ -353,30 +346,27 @@ void main() {
         expect(mockVideoPlayerController.speed, 0.5);
       });
 
-      test(
-        "setSpeed should send event",
-        () async {
-          final BetterPlayerController betterPlayerMockController =
-              BetterPlayerTestUtils.setupBetterPlayerMockController();
-          final videoPlayerController =
-              BetterPlayerTestUtils.setupMockVideoPlayerControler();
-          betterPlayerMockController.videoPlayerController =
-              videoPlayerController;
+      test("setSpeed should send event", () async {
+        final BetterPlayerController betterPlayerMockController =
+            BetterPlayerTestUtils.setupBetterPlayerMockController();
+        final videoPlayerController =
+            BetterPlayerTestUtils.setupMockVideoPlayerControler();
+        betterPlayerMockController.videoPlayerController =
+            videoPlayerController;
 
-          int setSpeedCalls = 0;
-          betterPlayerMockController.addEventsListener((event) {
-            if (event.betterPlayerEventType == BetterPlayerEventType.setSpeed) {
-              setSpeedCalls += 1;
-            }
-          });
-          betterPlayerMockController.setSpeed(1.5);
-          await Future.delayed(const Duration(milliseconds: 100), () {});
-          expect(setSpeedCalls, 1);
-          betterPlayerMockController.setSpeed(1.0);
-          await Future.delayed(const Duration(milliseconds: 100), () {});
-          expect(setSpeedCalls, 2);
-        },
-      );
+        int setSpeedCalls = 0;
+        betterPlayerMockController.addEventsListener((event) {
+          if (event.betterPlayerEventType == BetterPlayerEventType.setSpeed) {
+            setSpeedCalls += 1;
+          }
+        });
+        betterPlayerMockController.setSpeed(1.5);
+        await Future.delayed(const Duration(milliseconds: 100), () {});
+        expect(setSpeedCalls, 1);
+        betterPlayerMockController.setSpeed(1);
+        await Future.delayed(const Duration(milliseconds: 100), () {});
+        expect(setSpeedCalls, 2);
+      });
 
       test("isBuffering returns valid value", () async {
         final BetterPlayerController betterPlayerMockController =

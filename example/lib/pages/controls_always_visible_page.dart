@@ -3,9 +3,10 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class ControlsAlwaysVisiblePage extends StatefulWidget {
+  const ControlsAlwaysVisiblePage({super.key});
+
   @override
-  _ControlsAlwaysVisiblePageState createState() =>
-      _ControlsAlwaysVisiblePageState();
+  State<ControlsAlwaysVisiblePage> createState() => _ControlsAlwaysVisiblePageState();
 }
 
 class _ControlsAlwaysVisiblePageState extends State<ControlsAlwaysVisiblePage> {
@@ -13,19 +14,17 @@ class _ControlsAlwaysVisiblePageState extends State<ControlsAlwaysVisiblePage> {
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
       aspectRatio: 16 / 9,
       fit: BoxFit.contain,
-      handleLifecycle: true,
     );
     _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
     _setupDataSource();
     super.initState();
   }
 
-  void _setupDataSource() async {
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+  Future<void> _setupDataSource() async {
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.network,
       Constants.elephantDreamVideoUrl,
     );
@@ -55,8 +54,7 @@ class _ControlsAlwaysVisiblePageState extends State<ControlsAlwaysVisiblePage> {
           ),
           ElevatedButton(
               onPressed: () {
-                _betterPlayerController.setControlsAlwaysVisible(
-                    !(_betterPlayerController.controlsAlwaysVisible));
+                _betterPlayerController.setControlsAlwaysVisible(!(_betterPlayerController.controlsAlwaysVisible));
               },
               child: Text("Toggle always visible controls"))
         ],

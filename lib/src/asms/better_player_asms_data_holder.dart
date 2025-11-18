@@ -3,9 +3,8 @@ import 'package:xstream_player/src/asms/better_player_asms_subtitle.dart';
 import 'package:xstream_player/src/asms/better_player_asms_track.dart';
 
 class BetterPlayerAsmsDataHolder {
+  BetterPlayerAsmsDataHolder({this.tracks, this.subtitles, this.audios});
   List<BetterPlayerAsmsTrack>? tracks;
   List<BetterPlayerAsmsSubtitle>? subtitles;
   List<BetterPlayerAsmsAudioTrack>? audios;
-
-  BetterPlayerAsmsDataHolder({this.tracks, this.subtitles, this.audios});
 }

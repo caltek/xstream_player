@@ -6,8 +6,10 @@ import 'package:better_player_example/utils.dart';
 import 'package:flutter/material.dart';
 
 class MemoryPlayerPage extends StatefulWidget {
+  const MemoryPlayerPage({super.key});
+
   @override
-  _MemoryPlayerPageState createState() => _MemoryPlayerPageState();
+  State<MemoryPlayerPage> createState() => _MemoryPlayerPageState();
 }
 
 class _MemoryPlayerPageState extends State<MemoryPlayerPage> {
@@ -15,8 +17,7 @@ class _MemoryPlayerPageState extends State<MemoryPlayerPage> {
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
       aspectRatio: 16 / 9,
       fit: BoxFit.contain,
     );
@@ -26,13 +27,12 @@ class _MemoryPlayerPageState extends State<MemoryPlayerPage> {
     super.initState();
   }
 
-  void _setupDataSource() async {
-    var filePath = await Utils.getFileUrl(Constants.fileTestVideoUrl);
-    File file = File(filePath);
+  Future<void> _setupDataSource() async {
+    final filePath = await Utils.getFileUrl(Constants.fileTestVideoUrl);
+    final File file = File(filePath);
 
-    List<int> bytes = file.readAsBytesSync().buffer.asUint8List();
-    BetterPlayerDataSource dataSource =
-        BetterPlayerDataSource.memory(bytes, videoExtension: "mp4");
+    final List<int> bytes = file.readAsBytesSync().buffer.asUint8List();
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource.memory(bytes, videoExtension: 'mp4');
     _betterPlayerController.setupDataSource(dataSource);
   }
 

@@ -1,9 +1,10 @@
+import 'package:xstream_player/src/hls/hls_parser/scheme_data.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
-import 'scheme_data.dart';
-
+@immutable
 class DrmInitData {
-  DrmInitData({this.schemeType, this.schemeData = const []});
+  const DrmInitData({this.schemeType, this.schemeData = const []});
 
   final List<SchemeData> schemeData;
   final String? schemeType;

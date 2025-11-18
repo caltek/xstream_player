@@ -5,64 +5,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class PlaylistPage extends StatefulWidget {
+  const PlaylistPage({super.key});
+
   @override
-  _PlaylistPageState createState() => _PlaylistPageState();
+  State<PlaylistPage> createState() => _PlaylistPageState();
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {
-  final GlobalKey<BetterPlayerPlaylistState> _betterPlayerPlaylistStateKey =
-      GlobalKey();
-  List<BetterPlayerDataSource> _dataSourceList = [];
-  late BetterPlayerConfiguration _betterPlayerConfiguration;
-  late BetterPlayerPlaylistConfiguration _betterPlayerPlaylistConfiguration;
-
   _PlaylistPageState() {
-    _betterPlayerConfiguration = BetterPlayerConfiguration(
+    _betterPlayerConfiguration = const BetterPlayerConfiguration(
       aspectRatio: 1,
       fit: BoxFit.cover,
-      placeholderOnTop: true,
       showPlaceholderUntilPlay: true,
       subtitlesConfiguration: BetterPlayerSubtitlesConfiguration(fontSize: 10),
-      deviceOrientationsAfterFullScreen: [
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ],
+      deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
     );
-    _betterPlayerPlaylistConfiguration = BetterPlayerPlaylistConfiguration(
-      loopVideos: true,
-      nextVideoDelay: Duration(seconds: 3),
-    );
+    _betterPlayerPlaylistConfiguration = const BetterPlayerPlaylistConfiguration();
   }
+  final GlobalKey<BetterPlayerPlaylistState> _betterPlayerPlaylistStateKey = GlobalKey();
+  final List<BetterPlayerDataSource> _dataSourceList = [];
+  late BetterPlayerConfiguration _betterPlayerConfiguration;
+  late BetterPlayerPlaylistConfiguration _betterPlayerPlaylistConfiguration;
 
   Future<List<BetterPlayerDataSource>> setupData() async {
     _dataSourceList.add(
       BetterPlayerDataSource(
-          BetterPlayerDataSourceType.network, Constants.forBiggerBlazesUrl,
-          subtitles: BetterPlayerSubtitlesSource.single(
-            type: BetterPlayerSubtitlesSourceType.file,
-            url: await Utils.getFileUrl(Constants.fileExampleSubtitlesUrl),
-          ),
-          placeholder: Image.network(
-            Constants.catImageUrl,
-            fit: BoxFit.cover,
-          )),
+        BetterPlayerDataSourceType.network,
+        Constants.forBiggerBlazesUrl,
+        subtitles: BetterPlayerSubtitlesSource.single(
+          type: BetterPlayerSubtitlesSourceType.file,
+          url: await Utils.getFileUrl(Constants.fileExampleSubtitlesUrl),
+        ),
+        placeholder: Image.network(Constants.catImageUrl, fit: BoxFit.cover),
+      ),
     );
 
     _dataSourceList.add(
       BetterPlayerDataSource(
         BetterPlayerDataSourceType.network,
         Constants.bugBuckBunnyVideoUrl,
-        placeholder: Image.network(
-          Constants.catImageUrl,
-          fit: BoxFit.cover,
-        ),
+        placeholder: Image.network(Constants.catImageUrl, fit: BoxFit.cover),
       ),
     );
     _dataSourceList.add(
-      BetterPlayerDataSource(
-        BetterPlayerDataSourceType.network,
-        Constants.forBiggerJoyridesVideoUrl,
-      ),
+      BetterPlayerDataSource(BetterPlayerDataSourceType.network, Constants.forBiggerJoyridesVideoUrl),
     );
 
     return _dataSourceList;
@@ -83,16 +69,14 @@ class _PlaylistPageState extends State<PlaylistPage> {
             return ListView(children: [
               Padding(
                 padding: EdgeInsets.all(8),
-                child: Text(
-                    "Playlist widget will load automatically next video once current "
+                child: Text("Playlist widget will load automatically next video once current "
                     "finishes. User can't use player controls when video is changing."),
               ),
               AspectRatio(
                 child: BetterPlayerPlaylist(
                   key: _betterPlayerPlaylistStateKey,
                   betterPlayerConfiguration: _betterPlayerConfiguration,
-                  betterPlayerPlaylistConfiguration:
-                      _betterPlayerPlaylistConfiguration,
+                  betterPlayerPlaylistConfiguration: _betterPlayerPlaylistConfiguration,
                   betterPlayerDataSourceList: snapshot.data!,
                 ),
                 aspectRatio: 1,
@@ -111,16 +95,14 @@ class _PlaylistPageState extends State<PlaylistPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  print("Currently playing video: " +
-                      _betterPlayerPlaylistController!.currentDataSourceIndex
-                          .toString());
+                  print(
+                      "Currently playing video: " + _betterPlayerPlaylistController!.currentDataSourceIndex.toString());
                 },
                 child: Text("Check currently playing video index"),
               ),
               ElevatedButton(
                 onPressed: () {
-                  _betterPlayerPlaylistController!.betterPlayerController!
-                      .pause();
+                  _betterPlayerPlaylistController!.betterPlayerController!.pause();
                 },
                 child: Text("Pause current video with BetterPlayerController"),
               ),
@@ -148,6 +130,5 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   BetterPlayerPlaylistController? get _betterPlayerPlaylistController =>
-      _betterPlayerPlaylistStateKey
-          .currentState!.betterPlayerPlaylistController;
+      _betterPlayerPlaylistStateKey.currentState!.betterPlayerPlaylistController;
 }

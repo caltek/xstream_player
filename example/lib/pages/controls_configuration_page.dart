@@ -3,9 +3,10 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class ControlsConfigurationPage extends StatefulWidget {
+  const ControlsConfigurationPage({super.key});
+
   @override
-  _ControlsConfigurationPageState createState() =>
-      _ControlsConfigurationPageState();
+  State<ControlsConfigurationPage> createState() => _ControlsConfigurationPageState();
 }
 
 class _ControlsConfigurationPageState extends State<ControlsConfigurationPage> {
@@ -13,8 +14,7 @@ class _ControlsConfigurationPageState extends State<ControlsConfigurationPage> {
 
   @override
   void initState() {
-    BetterPlayerControlsConfiguration controlsConfiguration =
-        BetterPlayerControlsConfiguration(
+    final BetterPlayerControlsConfiguration controlsConfiguration = BetterPlayerControlsConfiguration(
       controlBarColor: Colors.indigoAccent.withAlpha(200),
       iconsColor: Colors.lightGreen,
       playIcon: Icons.forward,
@@ -29,13 +29,15 @@ class _ControlsConfigurationPageState extends State<ControlsConfigurationPage> {
       overflowMenuIconsColor: Colors.white,
     );
 
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
-            aspectRatio: 16 / 9,
-            fit: BoxFit.contain,
-            controlsConfiguration: controlsConfiguration);
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
-        BetterPlayerDataSourceType.network, Constants.elephantDreamVideoUrl);
+    final BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
+      aspectRatio: 16 / 9,
+      fit: BoxFit.contain,
+      controlsConfiguration: controlsConfiguration,
+    );
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+      BetterPlayerDataSourceType.network,
+      Constants.elephantDreamVideoUrl,
+    );
     _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
     _betterPlayerController.setupDataSource(dataSource);
     super.initState();
@@ -65,8 +67,7 @@ class _ControlsConfigurationPageState extends State<ControlsConfigurationPage> {
             onPressed: () {
               setState(() {
                 _betterPlayerController.setBetterPlayerControlsConfiguration(
-                  BetterPlayerControlsConfiguration(
-                      overflowModalColor: Colors.amberAccent),
+                  BetterPlayerControlsConfiguration(overflowModalColor: Colors.amberAccent),
                 );
               });
             },

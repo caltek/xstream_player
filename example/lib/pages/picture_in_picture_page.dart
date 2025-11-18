@@ -3,22 +3,23 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class PictureInPicturePage extends StatefulWidget {
+  const PictureInPicturePage({super.key});
+
   @override
-  _PictureInPicturePageState createState() => _PictureInPicturePageState();
+  State<PictureInPicturePage> createState() => _PictureInPicturePageState();
 }
 
 class _PictureInPicturePageState extends State<PictureInPicturePage> {
   late BetterPlayerController _betterPlayerController;
-  GlobalKey _betterPlayerKey = GlobalKey();
+  final GlobalKey _betterPlayerKey = GlobalKey();
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
       aspectRatio: 16 / 9,
       fit: BoxFit.contain,
     );
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.network,
       Constants.elephantDreamVideoUrl,
     );

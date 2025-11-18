@@ -29,7 +29,8 @@ abstract class VideoPlayerPlatform {
   @visibleForTesting
   bool get isMock => false;
 
-  static VideoPlayerPlatform _instance = MethodChannelVideoPlayer();
+  static VideoPlayerPlatform _instance =
+      MethodChannelVideoPlayer() as VideoPlayerPlatform;
 
   /// The default instance of [VideoPlayerPlatform] to use.
   ///
@@ -319,31 +320,30 @@ class DataSource {
 
   /// Key to compare DataSource
   String get key {
-    String? result = "";
+    String? result = '';
 
     if (uri != null && uri!.isNotEmpty) {
       result = uri;
     } else if (package != null && package!.isNotEmpty) {
-      result = "$package:$asset";
+      result = '$package:$asset';
     } else {
       result = asset;
     }
 
     if (formatHint != null) {
-      result = "$result:$rawFormalHint";
+      result = '$result:$rawFormalHint';
     }
 
     return result!;
   }
 
   @override
-  String toString() {
-    return 'DataSource{sourceType: $sourceType, uri: $uri certificateUrl: $certificateUrl, formatHint:'
-        ' $formatHint, asset: $asset, package: $package, headers: $headers,'
-        ' useCache: $useCache,maxCacheSize: $maxCacheSize, maxCacheFileSize: '
-        '$maxCacheFileSize, showNotification: $showNotification, title: $title,'
-        ' author: $author}';
-  }
+  String toString() =>
+      'DataSource{sourceType: $sourceType, uri: $uri certificateUrl: $certificateUrl, formatHint:'
+      ' $formatHint, asset: $asset, package: $package, headers: $headers,'
+      ' useCache: $useCache,maxCacheSize: $maxCacheSize, maxCacheFileSize: '
+      '$maxCacheFileSize, showNotification: $showNotification, title: $title,'
+      ' author: $author}';
 }
 
 /// The way in which the video was originally loaded.
@@ -358,7 +358,7 @@ enum DataSourceType {
   network,
 
   /// The video was loaded off of the local filesystem.
-  file
+  file,
 }
 
 /// The file format of the given video.
@@ -373,10 +373,11 @@ enum VideoFormat {
   ss,
 
   /// Any format other than the other ones defined in this enum.
-  other
+  other,
 }
 
 /// Event emitted from the platform implementation.
+@immutable
 class VideoEvent {
   /// Creates an instance of [VideoEvent].
   ///
@@ -513,7 +514,7 @@ enum VideoEventType {
 class DurationRange extends Equatable {
   /// Trusts that the given [start] and [end] are actually in order. They should
   /// both be non-null.
-  DurationRange(this.start, this.end);
+  const DurationRange(this.start, this.end);
 
   /// The beginning of the segment described relative to the beginning of the
   /// entire video. Should be shorter than or equal to [end].
@@ -553,8 +554,7 @@ class DurationRange extends Equatable {
   }
 
   @override
-  // ignore: no_runtimetype_tostring
-  String toString() => '$runtimeType(start: $start, end: $end)';
+  String toString() => 'DurationRange(start: $start, end: $end)';
 
   @override
   List<Object?> get props => [start, end];

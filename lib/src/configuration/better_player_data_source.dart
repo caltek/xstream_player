@@ -6,8 +6,8 @@ import 'package:xstream_player/src/configuration/better_player_video_constraint.
 import 'package:xstream_player/src/configuration/better_player_video_format.dart';
 import 'package:xstream_player/src/subtitles/better_player_subtitles_source.dart';
 import 'package:flutter/widgets.dart';
-
-import 'better_player_cache_configuration.dart';
+import 'package:xstream_player/xstream_player.dart'
+    show BetterPlayerCacheConfiguration;
 
 ///Representation of data source which will be played in Better Player. Allows
 ///to setup all necessary configuration connected to video source.

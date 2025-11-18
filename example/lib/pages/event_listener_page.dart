@@ -5,25 +5,27 @@ import 'package:better_player_example/constants.dart';
 import 'package:flutter/material.dart';
 
 class EventListenerPage extends StatefulWidget {
+  const EventListenerPage({super.key});
+
   @override
-  _EventListenerPageState createState() => _EventListenerPageState();
+  State<EventListenerPage> createState() => _EventListenerPageState();
 }
 
 class _EventListenerPageState extends State<EventListenerPage> {
   late BetterPlayerController _betterPlayerController;
   List<BetterPlayerEvent> events = [];
-  StreamController<DateTime> _eventStreamController =
-      StreamController.broadcast();
+  final StreamController<DateTime> _eventStreamController = StreamController.broadcast();
 
   @override
   void initState() {
-    BetterPlayerConfiguration betterPlayerConfiguration =
-        BetterPlayerConfiguration(
+    const BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
       aspectRatio: 16 / 9,
       fit: BoxFit.contain,
     );
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(
-        BetterPlayerDataSourceType.network, Constants.elephantDreamVideoUrl);
+    final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+      BetterPlayerDataSourceType.network,
+      Constants.elephantDreamVideoUrl,
+    );
     _betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
     _betterPlayerController.setupDataSource(dataSource);
     _betterPlayerController.addEventsListener(_handleEvent);
